@@ -1,4 +1,4 @@
-#include "LexicalAnalyzer.h"
+#include "headers/LexicalAnalyzer.h"
 #include <fstream>
 
 int main() {
