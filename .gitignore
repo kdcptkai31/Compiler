@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# Kai CLion Files
+.idea
+cmake-build-debug
+CMakeLists.txt
