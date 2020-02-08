@@ -4,6 +4,8 @@
 #include "SymbolTable.h"
 #include <iostream> //For isalpha(), isdigit(), etc.
 #include <fstream>
+#include <vector>
+#include <string>
 using namespace std;
 
 /**
@@ -20,7 +22,12 @@ public:
 
 private:
 
+    void generateMeaningfulUnits(ifstream& fileIn);
+    bool isMeaningfulUnitSeparator(char c);
+    bool isWhiteSpace(char c);
+
     SymbolTable symbolTable;
+    vector<string> meaningfulUnits;            //Holds the initially separated substrings from the file
     unordered_map<string, string> lexerOutput; //Holds the lexer's final output in format <Lexeme, Token>
 
     enum DFA_Inputs { //Skips 0 because it is the DFA's state label column

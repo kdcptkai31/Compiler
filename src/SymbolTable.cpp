@@ -8,7 +8,7 @@ SymbolTable::SymbolTable(){
     separators.insert({{"'", "separator"}, {"(", "separator"}, {")", "separator"},
                        {"{", "separator"}, {"}", "separator"}, {"[", "separator"},
                        {"]", "separator"}, {",", "separator"}, {".", "separator"},
-                       {":", "separator"}, {";", "separator"}, {" ", "separator"}});
+                       {":", "separator"}, {";", "separator"}});
 
     operators.insert({{"*", "operator"}, {"+", "operator"}, {"-", "operator"},
                        {"=", "operator"}, {"/", "operator"}, {">", "operator"},

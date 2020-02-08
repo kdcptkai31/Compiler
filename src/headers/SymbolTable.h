@@ -16,11 +16,11 @@ public:
     unordered_map<string, string> separators;
     unordered_map<string, string> operators;
     unordered_map<string, string> keywords;
-
-private:
     bool isSeparator(string s);
     bool isOperator(string s);
     bool isKeyword(string s);
+
+private:
 
 };
 

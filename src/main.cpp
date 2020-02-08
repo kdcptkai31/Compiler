@@ -6,14 +6,16 @@ int main() {
     string fileName = "fileName.txt";
     LexicalAnalyzer lexer;
 
-    fileIn.open(fileName);
+    fileIn.open(fileName, ifstream::in);
 
     if(fileIn.is_open())
         lexer.runLexer(fileIn);
-    else
-        cout << "File does not exist or cannot be opened.\n";
+    else {
 
-    fileIn.close();
+        cout << "File does not exist or cannot be opened.\n";
+        fileIn.close();
+
+    }
 
     return 0;
 }
