@@ -23,8 +23,12 @@ public:
 private:
 
     void generateMeaningfulUnits(ifstream& fileIn);
+
+    //Helper Functions
     bool isMeaningfulUnitSeparator(char c);
     bool isWhiteSpace(char c);
+    int getUnitType(string s);
+    bool stringIsNum(string s);
 
     SymbolTable symbolTable;
     vector<string> meaningfulUnits;            //Holds the initially separated substrings from the file
