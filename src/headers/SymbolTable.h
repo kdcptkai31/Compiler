@@ -1,18 +1,27 @@
 #ifndef COMPILER_SYMBOLTABLE_H
 #define COMPILER_SYMBOLTABLE_H
 
-#include <vector>
-#include <string>
+#include <unordered_map>
 using namespace std;
 
-static class SymbolTable {
+/**
+ * Holds the instructor assigned symbols for this compiler, as well as the lookup functions, to be used by the entire
+ * compiler.
+ */
+class SymbolTable {
 
 public:
-    vector<string> tokens = {"Keyword", "Identifier", "Separator", "Operator", "Number", "Comment"};
-    vector<string> keywords = {"int", "float", "bool", "true", "false", "if", "else", "then", "endif", "while",
-                               "whileend", "do", "doend", "for", "forend", "input", "output", "and", "or", "not"};
+    SymbolTable();
+    //Unordered maps are used for O(1) lookup times
+    unordered_map<string, string> separators;
+    unordered_map<string, string> operators;
+    unordered_map<string, string> keywords;
+    bool isSeparator(string s);
+    bool isOperator(string s);
+    bool isKeyword(string s);
+
+private:
 
 };
-
 
 #endif

@@ -1,24 +1,21 @@
 #include "headers/LexicalAnalyzer.h"
-#include <fstream>
 
 int main() {
 
-    fstream fileIn;
-    fileIn.open("fileName.txt");
-    char currentCharacter;
+    ifstream fileIn;
+    string fileName = "fileName.txt";
+    LexicalAnalyzer lexer;
 
-    if(fileIn.is_open()){
+    fileIn.open(fileName, ifstream::in);
 
-        while(fileIn >> currentCharacter){
+    if(fileIn.is_open())
+        lexer.runLexer(fileIn);
+    else {
 
-            //Call the DFSM on the character here
-
-        }
-
-
-    } else
         cout << "File does not exist or cannot be opened.\n";
+        fileIn.close();
 
+    }
 
     return 0;
 }
