@@ -27,14 +27,44 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
 
             //Separator
             case 0:
+                lexerOutput.insert({"SEPARATOR", currentUnit});
                 break;
 
             //Operator
             case 1:
+                lexerOutput.insert({"OPERATOR", currentUnit});
                 break;
 
             //Something else
-            case 2: //Run unit through DFA
+            case 2:
+                int acceptedStateType;//0 = identifier, 1 = Real Float, 2 = Integer
+                if(DFA(currentUnit, acceptedStateType)){
+
+                    switch(acceptedStateType){
+
+                        case 0:
+                            if(symbolTable.isKeyword(currentUnit))
+                                lexerOutput.insert({"KEYWORD", currentUnit});
+                            else
+                                lexerOutput.insert({"IDENTIFIER", currentUnit});
+                            break;
+
+                        case 1:
+                            lexerOutput.insert({"REAL", currentUnit});
+                            break;
+
+                        case 2:
+                            lexerOutput.insert({"INTEGER", currentUnit});
+                            break;
+
+                    }
+
+                } else{
+
+                    //Error lexeme (idk how we're suppossed to output this)
+
+                }
+
             break;
 
         }
@@ -111,6 +141,17 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
 }
 
 /**
+ * Deterministic Finite State Automata for Identifiers, Real Floats, and Integers.
+ * @param s
+ * @return True if
+ */
+bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
+
+
+
+}
+
+/**
  * Helper function for generateMeaningfulUnits
  * @param c
  * @return True if the character is a separator or operator, but not whitespace. False if it is whitespace or an alpha.
@@ -137,15 +178,13 @@ bool LexicalAnalyzer::isWhiteSpace(char c) {return c == ' ' || c == '\n' || c ==
  */
 int LexicalAnalyzer::getUnitType(string s) {
 
-    if(s.size() > 1)
-        return 2;
-
     if(symbolTable.isSeparator(s))
         return 0;
 
     if(symbolTable.isOperator(s))
         return 1;
 
+    return 2;
 }
 
 /**
@@ -158,5 +197,19 @@ bool LexicalAnalyzer::stringIsNum(string s) {
     char* p;
     strtol(s.c_str(), &p, 10);
     return *p == 0;
+
+}
+
+/**
+ * Prints the final output of the Lexical Analyzer, in a list of "Tokens    Lexemes", to a file.
+ */
+void LexicalAnalyzer::printOutputToFile(ofstream& fileOut) {
+
+    fileOut << setw(14) << left << "TOKENS" << "LEXEMES\n\n";
+
+    for(auto currentLexemeTokenPair: lexerOutput)
+        fileOut << setw(10) << left << currentLexemeTokenPair.first << "=   " << currentLexemeTokenPair.second << endl;
+
+    fileOut.close();
 
 }

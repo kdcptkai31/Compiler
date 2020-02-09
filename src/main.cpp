@@ -3,14 +3,18 @@
 int main() {
 
     ifstream fileIn;
-    string fileName = "fileName.txt";
     LexicalAnalyzer lexer;
 
-    fileIn.open(fileName, ifstream::in);
+    fileIn.open("fileName.txt", ifstream::in);
 
-    if(fileIn.is_open())
+    if(fileIn.is_open()) {
+
         lexer.runLexer(fileIn);
-    else {
+        ofstream fileOut;
+        fileOut.open("output.txt", ifstream::out);
+        lexer.printOutputToFile(fileOut);
+
+    }else {
 
         cout << "File does not exist or cannot be opened.\n";
         fileIn.close();
