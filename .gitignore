@@ -35,3 +35,8 @@
 .idea
 cmake-build-debug
 CMakeLists.txt
+
+#Luke Vs files
+lexer
+*.sln
+lexAn

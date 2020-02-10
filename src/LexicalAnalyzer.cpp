@@ -147,7 +147,7 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
  */
 bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
 
-
+    return true;
 
 }
 
