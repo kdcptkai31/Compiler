@@ -27,12 +27,12 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
 
             //Separator
             case 0:
-                lexerOutput.insert({"SEPARATOR", currentUnit});
+                lexerOutput.push_back({"SEPARATOR", currentUnit});
                 break;
 
             //Operator
             case 1:
-                lexerOutput.insert({"OPERATOR", currentUnit});
+                lexerOutput.push_back({"OPERATOR", currentUnit});
                 break;
 
             //Something else
@@ -44,17 +44,17 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
 
                         case 0:
                             if(symbolTable.isKeyword(currentUnit))
-                                lexerOutput.insert({"KEYWORD", currentUnit});
+                                lexerOutput.push_back({"KEYWORD", currentUnit});
                             else
-                                lexerOutput.insert({"IDENTIFIER", currentUnit});
+                                lexerOutput.push_back({"IDENTIFIER", currentUnit});
                             break;
 
                         case 1:
-                            lexerOutput.insert({"REAL", currentUnit});
+                            lexerOutput.push_back({"REAL", currentUnit});
                             break;
 
                         case 2:
-                            lexerOutput.insert({"INTEGER", currentUnit});
+                            lexerOutput.push_back({"INTEGER", currentUnit});
                             break;
 
                     }
@@ -146,9 +146,67 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
  * @return True if
  */
 bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
+    //add table 
+    bool accepted = false;
+    int DFATable[9][7] =
+    {
+        {0, letter, digit, dollarSign, decimalPoint, signs, unknown},
+        {1,     2,     5,       8,           6,         4,      8},
+        {2,     3,     3,       3,           8,         8,      8},
+        {3,     2,     2,       2,           8,         8,      8},
+        {4,     8,     5,       8,           8,         8,      8},
+        {5,     8,     5,       8,           6,         8,      8},
+        {6,     8,     7,       8,           8,         8,      8},
+        {7,     8,     7,       8,           8,         8,      8},
+        {8,     8,     8,       8,           8,         8,      8}
+    };
 
-    return true;
+    int startingState = 1;
+    int strLength = meaningfulUnit.length();
+    int curState = 1;
+    int curCol = 1;
+    char currentChar = ' ';
 
+    for (int i = 0; i < strLength; i++) {
+        currentChar = meaningfulUnit[i];
+        curCol = colNum(currentChar);
+        curState = DFATable[curState][curCol];
+    }
+
+    if(curState==2 || curState == 3) {
+        acceptedStateType = 0;
+        accepted = true;
+    }
+    else if (curState == 5) {
+        acceptedStateType = 2;
+        accepted = true;
+    }
+    else if (curState == 7) {
+        acceptedStateType = 3;
+        accepted = true;
+    }
+    
+    return accepted;
+    
+}
+
+int LexicalAnalyzer::colNum(char ch) {
+    if (isdigit(ch)) {
+        return digit;
+    }
+    else if (isalpha(ch)) {
+        return letter;
+    }
+    else if (ch == '$') {
+        return dollarSign;
+    }
+    else if (ch == '.') {
+        return decimalPoint;
+    }
+    else if (ch == '+' || ch == '-') {
+        return signs;
+    }
+    
 }
 
 /**

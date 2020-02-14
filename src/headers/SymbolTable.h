@@ -13,9 +13,10 @@ class SymbolTable {
 public:
     SymbolTable();
     //Unordered maps are used for O(1) lookup times
-    unordered_map<string, string> separators;
-    unordered_map<string, string> operators;
-    unordered_map<string, string> keywords;
+    //vector<pair<string, string>> vec;
+    unordered_multimap<string, string> separators;
+    unordered_multimap<string, string> operators;
+    unordered_multimap<string, string> keywords;
     bool isSeparator(string s);
     bool isOperator(string s);
     bool isKeyword(string s);

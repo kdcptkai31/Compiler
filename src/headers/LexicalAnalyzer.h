@@ -30,17 +30,20 @@ private:
     bool isWhiteSpace(char c);
     int getUnitType(string s);
     bool stringIsNum(string s);
+    int colNum(char ch);
 
     //Data
     SymbolTable symbolTable;                    //Holds all the assigned lexemes
     vector<string> meaningfulUnits;            //Holds the initially separated substrings from the file
-    unordered_map<string, string> lexerOutput; //Holds the lexer's final output in format <Token, Lexeme>
+    vector<pair<string, string>> lexerOutput; //Holds the lexer's final output in format <Token, Lexeme>
 
     enum DFA_Inputs { //Skips 0 because it is the DFA's state label column
         letter = 1,
         digit,       //2
         decimalPoint,//3
-        dollarSign  //4
+        dollarSign,  //4
+        signs,  //added for the DFA table
+        unknown
     };
 
     int DFA_State_Table;//This will be out 2D array of states once we make it
