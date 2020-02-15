@@ -37,7 +37,7 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
 
             //Something else
             case 2:
-                int acceptedStateType;//0 = identifier, 1 = Real Float, 2 = Integer
+                int acceptedStateType;//0 = identifier, 1 = Integer, 2 = Real Float
                 if(DFA(currentUnit, acceptedStateType)){
 
                     switch(acceptedStateType){
@@ -50,18 +50,18 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
                             break;
 
                         case 1:
-                            lexerOutput.push_back({"REAL", currentUnit});
+                            lexerOutput.push_back({"INTEGER", currentUnit});
                             break;
 
                         case 2:
-                            lexerOutput.push_back({"INTEGER", currentUnit});
+                            lexerOutput.push_back({"REAL", currentUnit});
                             break;
 
                     }
 
                 } else{
 
-                    //Error lexeme (idk how we're suppossed to output this)
+                    lexerOutput.push_back({"ERROR", currentUnit});
 
                 }
 
@@ -161,28 +161,23 @@ bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
         {8,     8,     8,       8,           8,         8,      8}
     };
 
-    int startingState = 1;
-    int strLength = meaningfulUnit.length();
     int curState = 1;
-    int curCol = 1;
-    char currentChar = ' ';
+    int curCol;
+    char currentChar;
 
-    for (int i = 0; i < strLength; i++) {
-        currentChar = meaningfulUnit[i];
-        curCol = colNum(currentChar);
-        curState = DFATable[curState][curCol];
-    }
+    for (int i = 0; i < meaningfulUnit.length(); i++)
+        curState = DFATable[curState][colNum(meaningfulUnit[i])];
 
     if(curState==2 || curState == 3) {
         acceptedStateType = 0;
         accepted = true;
     }
     else if (curState == 5) {
-        acceptedStateType = 2;
+        acceptedStateType = 1;
         accepted = true;
     }
     else if (curState == 7) {
-        acceptedStateType = 3;
+        acceptedStateType = 2;
         accepted = true;
     }
     
@@ -191,21 +186,19 @@ bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
 }
 
 int LexicalAnalyzer::colNum(char ch) {
-    if (isdigit(ch)) {
+
+    if (isdigit(ch))
         return digit;
-    }
-    else if (isalpha(ch)) {
+    else if (isalpha(ch))
         return letter;
-    }
-    else if (ch == '$') {
+    else if (ch == '$')
         return dollarSign;
-    }
-    else if (ch == '.') {
+    else if (ch == '.')
         return decimalPoint;
-    }
-    else if (ch == '+' || ch == '-') {
+    else if (ch == '+' || ch == '-')
         return signs;
-    }
+    else
+        return unknown;
     
 }
 

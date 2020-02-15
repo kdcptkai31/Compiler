@@ -39,11 +39,11 @@ private:
 
     enum DFA_Inputs { //Skips 0 because it is the DFA's state label column
         letter = 1,
-        digit,       //2
-        decimalPoint,//3
-        dollarSign,  //4
-        signs,  //added for the DFA table
-        unknown
+        digit,
+        dollarSign,
+        decimalPoint,
+        signs,
+        unknown //Character other than the accepted language for this assignment
     };
 
     int DFA_State_Table;//This will be out 2D array of states once we make it
