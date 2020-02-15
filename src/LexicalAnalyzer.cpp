@@ -73,7 +73,8 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
     string currentUnit;
     while(fileIn.get(currentChar)){
 
-        if(isMeaningfulUnitSeparator(currentChar) && currentChar != '.'){//Char is non-comment, non-whitespace separator
+        //Char is non-comment, non-whitespace separator
+        if(isMeaningfulUnitSeparator(currentChar) && currentChar != '.' && currentChar != '-' && currentChar != '+'){
 
             //Appends the current string unit to the data structure, followed by the current character unit
             if(!currentUnit.empty())
@@ -84,11 +85,11 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
 
         }else if(currentChar == '.') {//Char is a '.', so check if it's part of a Real Float
 
-            if(!currentUnit.empty()) {
+            if (!currentUnit.empty()) {
 
                 if (stringIsNum(currentUnit))
                     currentUnit.append(string(1, currentChar));
-                else{
+                else {
 
                     meaningfulUnits.insert(meaningfulUnits.end(), currentUnit);
                     meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
@@ -96,7 +97,20 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
 
                 }
 
-            }else
+            } else {
+
+                if (isdigit(fileIn.peek()))
+                    currentUnit.append(string(1, currentChar));
+                else
+                    meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
+
+            }
+
+        }else if(currentChar == '-' || currentChar == '+'){
+
+            if(isdigit(fileIn.peek()))
+                currentUnit.append(string(1, currentChar));
+            else
                 meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
 
         }else if(iswspace(currentChar)){//Char is whitespace, remove
