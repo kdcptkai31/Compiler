@@ -5,22 +5,12 @@
  */
 SymbolTable::SymbolTable(){
 
-    separators.insert({{"'", "separator"}, {"(", "separator"}, {")", "separator"},
-                       {"{", "separator"}, {"}", "separator"}, {"[", "separator"},
-                       {"]", "separator"}, {",", "separator"}, {".", "separator"},
-                       {":", "separator"}, {";", "separator"}});
+    separators.insert(separators.end(), {"'", "(", ")", "{", "}", "[", "]", ",", ".", ":", ";"});
+    operators.insert(operators.end(), {"*", "+", "-", "=", "/", ">", "<", "%"});
+    keywords.insert(keywords.end(), {"int", "float", "bool", "true", "false", "if", "else", "then", "endif",
+                                                 "while", "whileend", "do", "doend", "for", "forend", "input", "output",
+                                                 "and", "or", "not"});
 
-    operators.insert({{"*", "operator"}, {"+", "operator"}, {"-", "operator"},
-                       {"=", "operator"}, {"/", "operator"}, {">", "operator"},
-                       {"<", "operator"}, {"%", "operator"}});
-
-    keywords.insert({{"int", "keyword"}, {"float", "keyword"}, {"bool", "keyword"},
-                       {"true", "keyword"}, {"false", "keyword"}, {"if", "keyword"},
-                       {"else", "keyword"}, {"then", "keyword"}, {"endif", "keyword"},
-                       {"while", "keyword"}, {"whileend", "keyword"}, {"do", "keyword"},
-                       {"doend", "keyword"}, {"for", "keyword"}, {"forend", "keyword"},
-                       {"input", "keyword"}, {"output", "keyword"}, {"and", "keyword"},
-                       {"or", "keyword"}, {"not", "keyword"}});
 }
 
 /**
@@ -28,13 +18,10 @@ SymbolTable::SymbolTable(){
  * @param s
  * @return True if the char is a separator, false if not
  */
-bool SymbolTable::isSeparator(string s) {
+bool SymbolTable::isSeparator(const string& s) {
 
-    auto it = separators.find(s);
-    if(it != separators.end())
-        return true;
-
-    return false;
+    auto it = find(separators.begin(), separators.end(), s);
+    return it != separators.end();
 
 }
 
@@ -43,13 +30,10 @@ bool SymbolTable::isSeparator(string s) {
  * @param s
  * @return True if the char is an operator, false if not.
  */
-bool SymbolTable::isOperator(string s) {
+bool SymbolTable::isOperator(const string& s) {
 
-    auto it = operators.find(s);
-    if(it != operators.end())
-        return true;
-
-    return false;
+    auto it = find(operators.begin(), operators.end(), s);
+    return it != operators.end();
 
 }
 
@@ -58,12 +42,9 @@ bool SymbolTable::isOperator(string s) {
  * @param s
  * @return True if the string is a keyword, false if not.
  */
-bool SymbolTable::isKeyword(string s) {
+bool SymbolTable::isKeyword(const string& s) {
 
-    auto it = keywords.find(s);
-    if(it != keywords.end())
-        return true;
-
-    return false;
+    auto it = find(keywords.begin(), keywords.end(), s);
+    return it != keywords.end();
 
 }

@@ -1,20 +1,15 @@
 #include "headers/LexicalAnalyzer.h"
 
 /**
- * Constructor
- */
-LexicalAnalyzer::LexicalAnalyzer() {
-
-
-}
-
-/**
- * Controls the majority of the Lexical Analyzer's logic, will finish with a map of Lexemes and Tokens
+ * Controls the majority of the Lexical Analyzer's logic, will finish with a map of Lexemes and Tokens. It first breaks
+ * up the input file into "meaningfulUnits" which may or may not be valid substrings. These units are used throughout
+ * the lexical analyzer as potential valid substrings, and once verified and labeled, they will be inserted into the
+ * lexerOutput data structure for shipment to the next stage of the compiler.
  * @param fileIn
  */
 void LexicalAnalyzer::runLexer(ifstream &fileIn) {
 
-    //Generates meaningful units to run through the lexer, removes comment blocks here. Units are in meaningfulUnits.
+    //Generates meaningful units to run through the lexer, removes comment blocks and whitespace here.
     generateMeaningfulUnits(fileIn);
 
     //Labels each meaningful unit with its associated Token, then inserts into the lexerOutput map for production.
@@ -25,45 +20,39 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
         //Handles the meaningful unit based on what it is or could be
         switch(currentUnitType){
 
-            //Separator
-            case 0:
-                lexerOutput.push_back({"SEPARATOR", currentUnit});
+            case 0: //Separator Case
+                lexerOutput.emplace_back("SEPARATOR", currentUnit);
                 break;
 
-            //Operator
-            case 1:
-                lexerOutput.push_back({"OPERATOR", currentUnit});
+            case 1: //Operator Case
+                lexerOutput.emplace_back("OPERATOR", currentUnit);
                 break;
 
-            //Something else
-            case 2:
+            case 2: //DFA will be needed to determine the additional cases
                 int acceptedStateType;//0 = identifier, 1 = Integer, 2 = Real Float
                 if(DFA(currentUnit, acceptedStateType)){
 
                     switch(acceptedStateType){
 
-                        case 0:
+                        case 0: //Identifier or Keyword Case
                             if(symbolTable.isKeyword(currentUnit))
-                                lexerOutput.push_back({"KEYWORD", currentUnit});
+                                lexerOutput.emplace_back("KEYWORD", currentUnit);
                             else
-                                lexerOutput.push_back({"IDENTIFIER", currentUnit});
+                                lexerOutput.emplace_back("IDENTIFIER", currentUnit);
                             break;
 
-                        case 1:
-                            lexerOutput.push_back({"INTEGER", currentUnit});
+                        case 1: //Integer Case
+                            lexerOutput.emplace_back("INTEGER", currentUnit);
                             break;
 
-                        case 2:
-                            lexerOutput.push_back({"REAL", currentUnit});
+                        case 2: //Real Float Case
+                            lexerOutput.emplace_back("REAL", currentUnit);
                             break;
 
                     }
 
-                } else{
-
-                    lexerOutput.push_back({"ERROR", currentUnit});
-
-                }
+                } else //Error Case
+                    lexerOutput.emplace_back("ERROR", currentUnit);
 
             break;
 
@@ -74,7 +63,7 @@ void LexicalAnalyzer::runLexer(ifstream &fileIn) {
 }
 
 /**
- * Parses the file and separates the characters into "meaningful units," or by whitespace, separators, operators.
+ * Parses the file and separates the characters into "meaningful units," by whitespace, separators, and operators.
  * Additionally, comment blocks and additional whitespace will be removed at this stage.
  * @param fileIn
  */
@@ -87,15 +76,16 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
         if(isMeaningfulUnitSeparator(currentChar) && currentChar != '.'){//Char is non-comment, non-whitespace separator
 
             //Appends the current string unit to the data structure, followed by the current character unit
-            if(currentUnit.size() > 0)
+            if(!currentUnit.empty())
                 meaningfulUnits.insert(meaningfulUnits.end(), currentUnit);
 
             meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
             currentUnit.clear();
 
-        }else if(currentChar == '.') {                                  //Char is a '.', so check if it's part of a Real
+        }else if(currentChar == '.') {//Char is a '.', so check if it's part of a Real Float
 
-            if(currentUnit.size() > 0) {
+            if(!currentUnit.empty()) {
+
                 if (stringIsNum(currentUnit))
                     currentUnit.append(string(1, currentChar));
                 else{
@@ -109,18 +99,18 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
             }else
                 meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
 
-        }else if(isWhiteSpace(currentChar)){                //Char is whitespace, remove
+        }else if(iswspace(currentChar)){//Char is whitespace, remove
 
-                if(currentUnit.size() > 0) {
+                if(!currentUnit.empty()) {
 
                     meaningfulUnits.insert(meaningfulUnits.end(), currentUnit);
                     currentUnit.clear();
 
                 }
 
-        }else if(currentChar == '!'){                       //Char is comment, remove the block
+        }else if(currentChar == '!'){//Char is comment, remove the block
 
-            if(currentUnit.size() > 0){
+            if(!currentUnit.empty()){
 
                 meaningfulUnits.insert(meaningfulUnits.end(), currentUnit);
                 currentUnit.clear();
@@ -131,7 +121,7 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
             getline(fileIn,tmp);
             tmp.clear();
 
-        }else                                               //Char will be appended to currentUnit
+        }else//Char will be appended to currentUnit
                 currentUnit.append(string(1, currentChar));
 
     }
@@ -141,12 +131,15 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
 }
 
 /**
- * Deterministic Finite State Automata for Identifiers, Real Floats, and Integers.
+ * Deterministic Finite State Automata for Identifiers, Real Floats, and Integers. For each character in the unit, and
+ * based on the currently selected character's type, the state table will be traversed for each new character until it
+ * reaches its end. Then, depending on the end state, the meaningful unit will be assigned its type and whether or not
+ * it is a valid unit.
  * @param s
- * @return True if
+ * @return True if the meaningful unit is a valid Identifier, Real Float, or Integer. False is it is an error
  */
-bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
-    //add table 
+bool LexicalAnalyzer::DFA(const string& meaningfulUnit, int& acceptedStateType) {
+
     bool accepted = false;
     int DFATable[9][7] =
     {
@@ -162,21 +155,20 @@ bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
     };
 
     int curState = 1;
-    int curCol;
-    char currentChar;
 
-    for (int i = 0; i < meaningfulUnit.length(); i++)
-        curState = DFATable[curState][colNum(meaningfulUnit[i])];
+    //colNum returns the enum type of the character passed to it to receive its column number
+    for (char c : meaningfulUnit)
+        curState = DFATable[curState][colNum(c)];
 
-    if(curState==2 || curState == 3) {
+    if(curState==2 || curState == 3){ //Valid Identifier
         acceptedStateType = 0;
         accepted = true;
     }
-    else if (curState == 5) {
+    else if (curState == 5){ //Valid Integer
         acceptedStateType = 1;
         accepted = true;
     }
-    else if (curState == 7) {
+    else if (curState == 7){ //Valid Real Float
         acceptedStateType = 2;
         accepted = true;
     }
@@ -185,6 +177,11 @@ bool LexicalAnalyzer::DFA(string meaningfulUnit, int& acceptedStateType) {
     
 }
 
+/**
+ * Returns the enum type of the character parameter.
+ * @param ch
+ * @return character type
+ */
 int LexicalAnalyzer::colNum(char ch) {
 
     if (isdigit(ch))
@@ -203,23 +200,16 @@ int LexicalAnalyzer::colNum(char ch) {
 }
 
 /**
- * Helper function for generateMeaningfulUnits
+ * Helper function for generateMeaningfulUnits.
  * @param c
  * @return True if the character is a separator or operator, but not whitespace. False if it is whitespace or an alpha.
  */
 bool LexicalAnalyzer::isMeaningfulUnitSeparator(char c) {
 
     string s(1, c);
-    return (symbolTable.isSeparator(s) || symbolTable.isOperator(s)) && !isWhiteSpace(c);
+    return (symbolTable.isSeparator(s) || symbolTable.isOperator(s)) && !iswspace(c);
 
 }
-
-/**
- * Helper function for generateMeaningfulUnits
- * @param c
- * @return True if the character is considered whitespace. False if not.
- */
-bool LexicalAnalyzer::isWhiteSpace(char c) {return c == ' ' || c == '\n' || c == '\t';}
 
 /**
  * Helper function for runLexer which determines which switch state should be applied to the meaningful unit.
@@ -227,7 +217,7 @@ bool LexicalAnalyzer::isWhiteSpace(char c) {return c == ' ' || c == '\n' || c ==
  * @return Value of 0 means it is a separator, value of 1 means it is an operator, and a value of 2 means it is either
  *         an identifier, a keyword, an integer, a real float number, or a possible invalid identifier.
  */
-int LexicalAnalyzer::getUnitType(string s) {
+int LexicalAnalyzer::getUnitType(const string& s) {
 
     if(symbolTable.isSeparator(s))
         return 0;
@@ -243,11 +233,11 @@ int LexicalAnalyzer::getUnitType(string s) {
  * @param s
  * @return True if the string is an integer. False if not.
  */
-bool LexicalAnalyzer::stringIsNum(string s) {
+bool LexicalAnalyzer::stringIsNum(const string& s) {
 
-    char* p;
-    strtol(s.c_str(), &p, 10);
-    return *p == 0;
+    char* parser;
+    strtol(s.c_str(), &parser, 10);
+    return *parser == 0;
 
 }
 
@@ -258,7 +248,7 @@ void LexicalAnalyzer::printOutputToFile(ofstream& fileOut) {
 
     fileOut << setw(14) << left << "TOKENS" << "LEXEMES\n\n";
 
-    for(auto currentLexemeTokenPair: lexerOutput)
+    for(const auto& currentLexemeTokenPair: lexerOutput)
         fileOut << setw(10) << left << currentLexemeTokenPair.first << "=   " << currentLexemeTokenPair.second << endl;
 
     fileOut.close();

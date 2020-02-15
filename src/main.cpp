@@ -1,5 +1,10 @@
 #include "headers/LexicalAnalyzer.h"
 
+/**
+ * Controls the flow of the current state of this project. Currently, only the lexical analyzer is complete so an input
+ * file will be read into the lexer, which will output the organized data to an output file.
+ * @return
+ */
 int main() {
 
     ifstream fileIn;
@@ -22,4 +27,5 @@ int main() {
     }
 
     return 0;
+
 }

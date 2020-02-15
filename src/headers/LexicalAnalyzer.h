@@ -2,7 +2,7 @@
 #define COMPILER_LEXICALANALYZER_H
 
 #include "SymbolTable.h"
-#include <iostream> //For isalpha(), isdigit(), etc. in the DFA
+#include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <vector>
@@ -10,31 +10,27 @@
 using namespace std;
 
 /**
- * Handles all Lexical Analyzer logic in the compiler.
+ * Handles all Lexical Analyzer logic in the compiler, including generating meaningful units, and the Deterministic
+ * State Automata.
  */
 class LexicalAnalyzer {
 
 public:
-    //Constructor
-    LexicalAnalyzer();
-    //This will run the lexical
-    void runLexer(ifstream& fileIn);
-    void printOutputToFile(ofstream& fileOut);
+    void runLexer(ifstream& fileIn);            //This will run the lexical
+    void printOutputToFile(ofstream& fileOut);  //Prints the output vector to a given file stream
 
 private:
 
-    void generateMeaningfulUnits(ifstream& fileIn);
-    //Helper Functions
-    bool isMeaningfulUnitSeparator(char c);
-    bool DFA(string meaningfulUnit, int& acceptedStateType);
-    bool isWhiteSpace(char c);
-    int getUnitType(string s);
-    bool stringIsNum(string s);
-    int colNum(char ch);
+    void generateMeaningfulUnits(ifstream& fileIn);         //Reads inputs from a given file stream
+    bool isMeaningfulUnitSeparator(char c);                 //Determines if a character is a meaningful unit separator
+    static bool DFA(const string& meaningfulUnit, int& acceptedStateType);//Determines if a unit is valid; then determines its type
+    int getUnitType(const string& s);
+    static bool stringIsNum(const string& s);
+    static int colNum(char ch);
 
     //Data
-    SymbolTable symbolTable;                    //Holds all the assigned lexemes
-    vector<string> meaningfulUnits;            //Holds the initially separated substrings from the file
+    SymbolTable symbolTable;                  //Holds all the assigned lexemes
+    vector<string> meaningfulUnits;           //Holds the initially separated substrings from the file
     vector<pair<string, string>> lexerOutput; //Holds the lexer's final output in format <Token, Lexeme>
 
     enum DFA_Inputs { //Skips 0 because it is the DFA's state label column
@@ -45,8 +41,6 @@ private:
         signs,
         unknown //Character other than the accepted language for this assignment
     };
-
-    int DFA_State_Table;//This will be out 2D array of states once we make it
 
 };
 
