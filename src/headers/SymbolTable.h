@@ -2,6 +2,8 @@
 #define COMPILER_SYMBOLTABLE_H
 
 #include <unordered_map>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 /**
@@ -11,16 +13,13 @@ using namespace std;
 class SymbolTable {
 
 public:
-    SymbolTable();
-    //Unordered maps are used for O(1) lookup times
-    unordered_map<string, string> separators;
-    unordered_map<string, string> operators;
-    unordered_map<string, string> keywords;
-    bool isSeparator(string s);
-    bool isOperator(string s);
-    bool isKeyword(string s);
-
-private:
+    SymbolTable();//Initializes tables with their values
+    vector<string> separators;
+    vector<string> operators;
+    vector<string> keywords;
+    bool isSeparator(const string& s);
+    bool isOperator(const string& s);
+    bool isKeyword(const string& s);
 
 };
 
