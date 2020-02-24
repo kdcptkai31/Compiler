@@ -155,18 +155,17 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
 bool LexicalAnalyzer::DFA(const string& meaningfulUnit, int& acceptedStateType) {
 
     bool accepted = false;
-    int DFATable[9][7] =
-    {
-        {0, letter, digit, dollarSign, decimalPoint, signs, unknown},
-        {1,     2,     5,       8,           6,         4,      8},
-        {2,     3,     3,       3,           8,         8,      8},
-        {3,     2,     2,       2,           8,         8,      8},
-        {4,     8,     5,       8,           8,         8,      8},
-        {5,     8,     5,       8,           6,         8,      8},
-        {6,     8,     7,       8,           8,         8,      8},
-        {7,     8,     7,       8,           8,         8,      8},
-        {8,     8,     8,       8,           8,         8,      8}
-    };
+    int DFATable[8][7] =
+            {
+                    {0, letter, digit, dollarSign, decimalPoint, signs, unknown},
+                    {1,     2,     3,       7,           7,         3,      7},
+                    {2,     2,     2,       2,           7,         7,      7},
+                    {3,     7,     4,       7,           7,         7,      7},
+                    {4,     7,     4,       7,           5,         7,      7},
+                    {5,     7,     6,       7,           7,         7,      7},
+                    {6,     7,     6,       7,           7,         7,      7},
+                    {7,     7,     7,       7,           7,         7,      7}
+            };
 
     int curState = 1;
 
@@ -174,19 +173,19 @@ bool LexicalAnalyzer::DFA(const string& meaningfulUnit, int& acceptedStateType) 
     for (char c : meaningfulUnit)
         curState = DFATable[curState][colNum(c)];
 
-    if(curState==2 || curState == 3){ //Valid Identifier
+    if(curState==2){ //Valid Identifier
         acceptedStateType = 0;
         accepted = true;
     }
-    else if (curState == 5){ //Valid Integer
+    else if (curState == 4){ //Valid Integer
         acceptedStateType = 1;
         accepted = true;
     }
-    else if (curState == 7){ //Valid Real Float
+    else if (curState == 6){ //Valid Real Float
         acceptedStateType = 2;
         accepted = true;
     }
-    
+
     return accepted;
     
 }
