@@ -1,9 +1,9 @@
 #ifndef COMPILER_SYMBOLTABLE_H
 #define COMPILER_SYMBOLTABLE_H
 
-#include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <string>
 using namespace std;
 
 /**

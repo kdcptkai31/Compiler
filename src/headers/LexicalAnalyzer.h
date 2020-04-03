@@ -16,7 +16,8 @@ using namespace std;
 class LexicalAnalyzer {
 
 public:
-    void runLexer(ifstream& fileIn);            //This will run the lexical
+    LexicalAnalyzer();
+    void run(ifstream& fileIn);            //This will run the lexical
     void printOutputToFile(ofstream& fileOut);  //Prints the output vector to a given file stream
 
 private:

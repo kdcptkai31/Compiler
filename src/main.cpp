@@ -1,4 +1,5 @@
 #include "headers/LexicalAnalyzer.h"
+#include "headers/SyntacticAnalyzer.h"
 
 /**
  * Controls the flow of the current state of this project. Currently, only the lexical analyzer is complete so an input
@@ -8,23 +9,26 @@
 int main() {
 
     ifstream fileIn;
-    LexicalAnalyzer lexer;
-
     fileIn.open("fileName.txt", ifstream::in);
 
-    if(fileIn.is_open()) {
-
-        lexer.runLexer(fileIn);
-        ofstream fileOut;
-        fileOut.open("output.txt", ifstream::out);
-        lexer.printOutputToFile(fileOut);
-
-    }else {
+    //If source file does not exist, exit the compiler.
+    if(!fileIn.is_open()){
 
         cout << "File does not exist or cannot be opened.\n";
         fileIn.close();
+        return 0;
 
     }
+
+    LexicalAnalyzer lexer;
+    lexer.run(fileIn);
+
+    SyntacticAnalyzer syntacticAnalyzer;
+    syntacticAnalyzer.run(lexer);
+
+//    ofstream fileOut;
+//    fileOut.open("output.txt", ifstream::out);
+//    lexer.printOutputToFile(fileOut);
 
     return 0;
 

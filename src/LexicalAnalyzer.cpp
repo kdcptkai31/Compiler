@@ -1,13 +1,18 @@
 #include "headers/LexicalAnalyzer.h"
 
 /**
+ * Default Constructor
+ */
+LexicalAnalyzer::LexicalAnalyzer(){}
+
+/**
  * Controls the majority of the Lexical Analyzer's logic, will finish with a map of Lexemes and Tokens. It first breaks
  * up the input file into "meaningfulUnits" which may or may not be valid substrings. These units are used throughout
  * the lexical analyzer as potential valid substrings, and once verified and labeled, they will be inserted into the
  * lexerOutput data structure for shipment to the next stage of the compiler.
  * @param fileIn
  */
-void LexicalAnalyzer::runLexer(ifstream &fileIn) {
+void LexicalAnalyzer::run(ifstream &fileIn) {
 
     //Generates meaningful units to run through the lexer, removes comment blocks and whitespace here.
     generateMeaningfulUnits(fileIn);
@@ -225,7 +230,7 @@ bool LexicalAnalyzer::isMeaningfulUnitSeparator(char c) {
 }
 
 /**
- * Helper function for runLexer which determines which switch state should be applied to the meaningful unit.
+ * Helper function for run which determines which switch state should be applied to the meaningful unit.
  * @param s
  * @return Value of 0 means it is a separator, value of 1 means it is an operator, and a value of 2 means it is either
  *         an identifier, a keyword, an integer, a real float number, or a possible invalid identifier.
@@ -242,7 +247,7 @@ int LexicalAnalyzer::getUnitType(const string& s) {
 }
 
 /**
- * Helper function for runLexer which determines if the given string is an integer.
+ * Helper function for run which determines if the given string is an integer.
  * @param s
  * @return True if the string is an integer. False if not.
  */
