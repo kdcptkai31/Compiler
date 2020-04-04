@@ -33,7 +33,7 @@ void SyntacticAnalyzer::run() {
     if(lexerOutput->size() == 0)
         return;
 
-    while(isStatementList()){
+    while(tokenIndex != lexerOutput->size() && isStatementList()){
 
         printProductionRuleStrings();
         productionRuleStrings.clear();
