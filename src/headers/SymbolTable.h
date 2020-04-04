@@ -17,9 +17,11 @@ public:
     vector<string> separators;
     vector<string> operators;
     vector<string> keywords;
+    vector<string> types;
     bool isSeparator(const string& s);
     bool isOperator(const string& s);
     bool isKeyword(const string& s);
+    bool isType(const string& s);
 
 };
 

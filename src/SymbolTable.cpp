@@ -10,6 +10,7 @@ SymbolTable::SymbolTable(){
     keywords.insert(keywords.end(), {"int", "float", "bool", "true", "false", "if", "else", "then", "endif",
                                                  "while", "whileend", "do", "doend", "for", "forend", "input", "output",
                                                  "and", "or", "not"});
+    types.insert(types.end(), {"int", "float", "bool"});
 
 }
 
@@ -46,5 +47,12 @@ bool SymbolTable::isKeyword(const string& s) {
 
     auto it = find(keywords.begin(), keywords.end(), s);
     return it != keywords.end();
+
+}
+
+bool SymbolTable::isType(const string &s) {
+
+    auto it = find(types.begin(), types.end(), s);
+    return it != types.end();
 
 }
