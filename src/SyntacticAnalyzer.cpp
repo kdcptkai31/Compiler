@@ -86,15 +86,42 @@ bool SyntacticAnalyzer::isDeclarative(){
 
 bool SyntacticAnalyzer::isAssign(){
 
-    if(!isId())
+    if (isId())
+    {
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "<Assign> -> <id> = <Expression>\n");
+        tokenIndex++;
+        if (lexerOutput->at(tokenIndex).second == "=")
+        {
+            tokenIndex++;
+            if (isExpression())
+            {
+                tokenIndex++;
+                if (lexerOutput->at(tokenIndex).second == ";")
+                    return true;
+                else
+                {
+                    //report error
+                    return false;
+                }
+            }
+            else
+            {
+                //report error
+                return false;
+            }
+        }
+        else
+        {
+            //report error
+            return false;
+        }
+    }
+    else
+    {
+        //report error
         return false;
-
-    productionRuleStrings.insert(productionRuleStrings.end(),
-                                 "<Assign> -> <id> = <Expression>\n");
-    tokenIndex++;
-
-    if(isExpression())
-
+    }
 }
 
 void SyntacticAnalyzer::printProductionRuleStrings(){

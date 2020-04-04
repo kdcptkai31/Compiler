@@ -23,6 +23,7 @@ public:
 private:
     SymbolTable symbolTable;
     vector<pair<string, string>>* lexerOutput;
+    LexicalAnalyzer lex;
     int tokenIndex;
     ofstream fout;
     bool foutOpened;
