@@ -19,11 +19,11 @@ public:
     bool isStatement();
     bool isDeclarative();
     bool isAssign();
+    bool isExpression();
 
 private:
     SymbolTable symbolTable;
     vector<pair<string, string>>* lexerOutput;
-    LexicalAnalyzer lex;
     int tokenIndex;
     ofstream fout;
     bool foutOpened;
@@ -33,6 +33,7 @@ private:
     void outputCurrentTokenAndLexeme();
     void outputStatementProduction();
     bool isId();
+    bool isSemicolon();
 
 };
 
