@@ -99,6 +99,9 @@ bool SyntacticAnalyzer::isAssign(){
 
 void SyntacticAnalyzer::printProductionRuleStrings(){
 
+    if(!foutOpened)
+        return;
+
     for(int i = 0; i < productionRuleStrings.size(); i++)
         fout << productionRuleStrings.at(i);
 
@@ -121,6 +124,9 @@ void SyntacticAnalyzer::outputStatementProduction(){
 }
 
 void SyntacticAnalyzer::outputCurrentTokenAndLexeme(){
+
+    if(!foutOpened)
+        return;
 
     fout << "Token: " << setw(10) << left << lexerOutput->at(tokenIndex).first
          << "Lexeme: " << lexerOutput->at(tokenIndex).second << endl;
