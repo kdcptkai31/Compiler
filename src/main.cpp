@@ -23,8 +23,12 @@ int main() {
     LexicalAnalyzer lexer;
     lexer.run(fileIn);
 
-    SyntacticAnalyzer syntacticAnalyzer(true);
-    syntacticAnalyzer.run(lexer.getLexerOutput());
+    //True to print the production rules, false to just analyze.
+    SyntacticAnalyzer syntacticAnalyzer(true, lexer.getLexerOutput());
+    ofstream fout;
+    fout.open("output.txt", ifstream::out);
+    syntacticAnalyzer.run(fout);
+    fout.close();
 
     return 0;
 

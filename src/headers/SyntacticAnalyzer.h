@@ -10,12 +10,11 @@ class SyntacticAnalyzer{
 
 public:
 
-    SyntacticAnalyzer(bool printProductions);
-    ~SyntacticAnalyzer();
-    void run(vector<pair<string, string>>* lexerOutput);
+    SyntacticAnalyzer(bool printProductions, vector<pair<string, string>>* lOutput);
+    void run(ofstream& fout);
 
 private:
-    ofstream* fout;
+    vector<pair<string, string>>* lexerOutput;
 
 };
 
