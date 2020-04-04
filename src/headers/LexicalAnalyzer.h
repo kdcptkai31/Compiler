@@ -20,6 +20,9 @@ public:
     void run(ifstream& fileIn);            //This will run the lexical
     void printOutputToFile(ofstream& fileOut);  //Prints the output vector to a given file stream
 
+    //Getters
+    vector<pair<string, string>>* getLexerOutput(){return &lexerOutput;}
+
 private:
 
     void generateMeaningfulUnits(ifstream& fileIn);         //Reads inputs from a given file stream

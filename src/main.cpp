@@ -23,12 +23,8 @@ int main() {
     LexicalAnalyzer lexer;
     lexer.run(fileIn);
 
-    SyntacticAnalyzer syntacticAnalyzer;
-    syntacticAnalyzer.run(lexer);
-
-//    ofstream fileOut;
-//    fileOut.open("output.txt", ifstream::out);
-//    lexer.printOutputToFile(fileOut);
+    SyntacticAnalyzer syntacticAnalyzer(true);
+    syntacticAnalyzer.run(lexer.getLexerOutput());
 
     return 0;
 
