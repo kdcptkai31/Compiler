@@ -26,7 +26,9 @@ private:
     int tokenIndex;
     ofstream fout;
     bool foutOpened;
+    vector<string> productionRuleStrings;
 
+    void printProductionRuleStrings();
     void outputCurrentTokenAndLexeme();
     void outputStatementProduction();
     bool isId();

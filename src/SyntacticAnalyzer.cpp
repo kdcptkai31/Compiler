@@ -36,9 +36,7 @@ void SyntacticAnalyzer::run() {
     outputCurrentTokenAndLexeme();
 
     if(isStatementList())
-        return;
-
-    return;
+        printProductionRuleStrings();
 
 
 }
@@ -46,7 +44,9 @@ void SyntacticAnalyzer::run() {
 bool SyntacticAnalyzer::isStatementList(){
 
     if(isStatement())
-        fout << "<Statement List> -> <Statement> | <Statement> <Statement List>" << endl;
+        productionRuleStrings.insert(productionRuleStrings.end(),
+                                     "<Statement List> -> <Statement> | <Statement> <Statement List>\n");
+
 
     return true;
 
@@ -55,11 +55,15 @@ bool SyntacticAnalyzer::isStatementList(){
 
 bool SyntacticAnalyzer::isStatement(){
 
-    if(isDeclarative())
+    if(isDeclarative()){
+        outputStatementProduction();
         return true;
+    }
 
-    if(isAssign())
+    if(isAssign()){
+        outputStatementProduction();
         return true;
+    }
 
     return false;
 
@@ -70,10 +74,10 @@ bool SyntacticAnalyzer::isDeclarative(){
     if(!symbolTable.isType(lexerOutput->at(tokenIndex).first))
         return false;
 
-    outputStatementProduction();
-    fout << "<Declarative> -> <Type> <id>\n";
+    productionRuleStrings.insert(productionRuleStrings.end(),
+                                 "<Declarative> -> <Type> <id>\n");
     tokenIndex++;
-    
+
     if(isId())
 
 
@@ -85,13 +89,23 @@ bool SyntacticAnalyzer::isAssign(){
     if(!isId())
         return false;
 
-    outputStatementProduction();
-    fout << "<Assign> -> <id> = <Expression>\n";
+    productionRuleStrings.insert(productionRuleStrings.end(),
+                                 "<Assign> -> <id> = <Expression>\n");
     tokenIndex++;
 
     if(isExpression())
 
 }
+
+void SyntacticAnalyzer::printProductionRuleStrings(){
+
+    for(int i = 0; i < productionRuleStrings.size(); i++)
+        fout << productionRuleStrings.at(i);
+
+    fout << endl;
+
+}
+
 
 bool SyntacticAnalyzer::isId(){
 
@@ -101,7 +115,8 @@ bool SyntacticAnalyzer::isId(){
 
 void SyntacticAnalyzer::outputStatementProduction(){
 
-    fout << "<Statement> -> <Declarative> | <Assign>\n";
+    productionRuleStrings.insert(productionRuleStrings.end(),
+                                  "<Statement> -> <Declarative> | <Assign>\n");
 
 }
 
