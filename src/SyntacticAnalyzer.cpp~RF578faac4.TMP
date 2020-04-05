@@ -48,7 +48,7 @@ bool SyntacticAnalyzer::isStatementList(){
 
     if(isStatement()) {
         
-        productionRuleStrings.insert(productionRuleStrings.begin()+1,
+        productionRuleStrings.insert(productionRuleStrings.begin()+2,
                                      "<Statement List> -> <Statement> | <Statement> <Statement List>\n");
 
         return true;
@@ -83,7 +83,7 @@ bool SyntacticAnalyzer::isDeclarative(){
     if(!symbolTable.isType(lexerOutput->at(tokenIndex).second))
         return false;
 
-    productionRuleStrings.insert(productionRuleStrings.begin()+1,
+    productionRuleStrings.insert(productionRuleStrings.begin()+2,
                                  "<Declarative> -> <Type> <id> ;\n");
     tokenIndex++;
 
@@ -176,7 +176,7 @@ bool SyntacticAnalyzer::isSemicolon(){
 
 void SyntacticAnalyzer::outputStatementProduction(){
 
-    productionRuleStrings.insert(productionRuleStrings.begin()+1,
+    productionRuleStrings.insert(productionRuleStrings.begin()+2,
                                   "<Statement> -> <Declarative> | <Assign>\n");
 
 }
@@ -186,6 +186,19 @@ void SyntacticAnalyzer::outputCurrentTokenAndLexeme(){
     if(!foutOpened)
         return;
 
+    if (lexerOutput->at(tokenIndex).first == "KEYWORD")
+    {
+        productionRuleStrings.insert(productionRuleStrings.begin(),
+            "\nToken: " + lexerOutput->at(tokenIndex).first + " Lexeme: " + lexerOutput->at(tokenIndex).second + "\n");
+    }
+    else
+    {
         productionRuleStrings.insert(productionRuleStrings.end(),
             "\nToken: " + lexerOutput->at(tokenIndex).first + " Lexeme: " + lexerOutput->at(tokenIndex).second + "\n");
+    }
+    
+        
+    
+    
+
 }

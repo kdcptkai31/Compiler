@@ -44,18 +44,15 @@ void SyntacticAnalyzer::run() {
 
 bool SyntacticAnalyzer::isStatementList(){
 
-    outputCurrentTokenAndLexeme();
+    
 
     if(isStatement()) {
-        
-        productionRuleStrings.insert(productionRuleStrings.begin()+1,
+        productionRuleStrings.insert(productionRuleStrings.end(),
                                      "<Statement List> -> <Statement> | <Statement> <Statement List>\n");
 
         return true;
     }
-    
-
-    
+    outputCurrentTokenAndLexeme();
     cout << "ERROR DETECTED\n";
     return false;
 
@@ -83,7 +80,7 @@ bool SyntacticAnalyzer::isDeclarative(){
     if(!symbolTable.isType(lexerOutput->at(tokenIndex).second))
         return false;
 
-    productionRuleStrings.insert(productionRuleStrings.begin()+1,
+    productionRuleStrings.insert(productionRuleStrings.end(),
                                  "<Declarative> -> <Type> <id> ;\n");
     tokenIndex++;
 
@@ -176,7 +173,7 @@ bool SyntacticAnalyzer::isSemicolon(){
 
 void SyntacticAnalyzer::outputStatementProduction(){
 
-    productionRuleStrings.insert(productionRuleStrings.begin()+1,
+    productionRuleStrings.insert(productionRuleStrings.end(),
                                   "<Statement> -> <Declarative> | <Assign>\n");
 
 }
@@ -186,6 +183,7 @@ void SyntacticAnalyzer::outputCurrentTokenAndLexeme(){
     if(!foutOpened)
         return;
 
-        productionRuleStrings.insert(productionRuleStrings.end(),
+    productionRuleStrings.insert(productionRuleStrings.end(),
             "\nToken: " + lexerOutput->at(tokenIndex).first + " Lexeme: " + lexerOutput->at(tokenIndex).second + "\n");
+
 }
