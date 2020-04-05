@@ -19,6 +19,7 @@ public:
     bool isStatement();
     bool isDeclarative();
     bool isAssign();
+    bool isExpression();
 
 private:
     SymbolTable symbolTable;
@@ -32,6 +33,7 @@ private:
     void outputCurrentTokenAndLexeme();
     void outputStatementProduction();
     bool isId();
+    bool isSemicolon();
 
 };
 

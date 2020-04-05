@@ -33,22 +33,31 @@ void SyntacticAnalyzer::run() {
     if(lexerOutput->size() == 0)
         return;
 
-    outputCurrentTokenAndLexeme();
+    while(tokenIndex != lexerOutput->size() && isStatementList()){
 
-    if(isStatementList())
         printProductionRuleStrings();
+        productionRuleStrings.clear();
 
+    }
 
 }
 
 bool SyntacticAnalyzer::isStatementList(){
 
-    if(isStatement())
-        productionRuleStrings.insert(productionRuleStrings.end(),
+    outputCurrentTokenAndLexeme();
+
+    if(isStatement()) {
+        
+        productionRuleStrings.insert(productionRuleStrings.begin()+1,
                                      "<Statement List> -> <Statement> | <Statement> <Statement List>\n");
 
+        return true;
+    }
+    
 
-    return true;
+    
+    cout << "ERROR DETECTED\n";
+    return false;
 
 
 }
@@ -60,10 +69,10 @@ bool SyntacticAnalyzer::isStatement(){
         return true;
     }
 
-    if(isAssign()){
-        outputStatementProduction();
-        return true;
-    }
+//    if(isAssign()){
+//        outputStatementProduction();
+//        return true;
+//    }
 
     return false;
 
@@ -71,41 +80,84 @@ bool SyntacticAnalyzer::isStatement(){
 
 bool SyntacticAnalyzer::isDeclarative(){
 
-    if(!symbolTable.isType(lexerOutput->at(tokenIndex).first))
+    if(!symbolTable.isType(lexerOutput->at(tokenIndex).second))
         return false;
 
-    productionRuleStrings.insert(productionRuleStrings.end(),
-                                 "<Declarative> -> <Type> <id>\n");
+    productionRuleStrings.insert(productionRuleStrings.begin()+1,
+                                 "<Declarative> -> <Type> <id> ;\n");
     tokenIndex++;
 
-    if(isId())
+    outputCurrentTokenAndLexeme();
+    if(isId()) {
+        tokenIndex++;
+        outputCurrentTokenAndLexeme();
+        if (isSemicolon()) {
+            tokenIndex++;
+            return true;
 
+        } else {
 
+            if (foutOpened)
+                fout << "ERROR R2 violated- expected a ';' after the identifier\n";
+            else
+                cout << "ERROR R2 violated- expected a ';' after the identifier\n";
+
+        }
+
+    }
 
 }
 
-bool SyntacticAnalyzer::isAssign(){
-
-    if(!isId())
-        return false;
-
-    productionRuleStrings.insert(productionRuleStrings.end(),
-                                 "<Assign> -> <id> = <Expression>\n");
-    tokenIndex++;
-
-    if(isExpression())
-
-}
+//bool SyntacticAnalyzer::isAssign(){
+//
+//    if (!isId()){
+//
+//        //report error
+//        return false;
+//
+//    }
+//
+//    productionRuleStrings.insert(productionRuleStrings.end(),
+//            "<Assign> -> <id> = <Expression>\n");
+//    tokenIndex++;
+//    if (lexerOutput->at(tokenIndex).second == "="){
+//
+//        tokenIndex++;
+//        if (isExpression()){
+//
+//            tokenIndex++;
+//            if (lexerOutput->at(tokenIndex).second == ";")
+//                    return true;
+//                else{
+//
+//                    //report error
+//                    return false;
+//                }
+//        }else{
+//
+//                //report error
+//                return false;
+//            }
+//    }
+//
+//}
+//
+//bool SyntacticAnalyzer::isExpression() {
+//
+//
+//
+//}
 
 void SyntacticAnalyzer::printProductionRuleStrings(){
 
     if(!foutOpened)
         return;
 
-    for(int i = 0; i < productionRuleStrings.size(); i++)
-        fout << productionRuleStrings.at(i);
+    for(vector<string>::iterator it = productionRuleStrings.begin(); it != productionRuleStrings.end(); ++it)
+        fout << *it;
 
-    fout << endl;
+    fout << "--------------------------------------\n";
+
 
 }
 
@@ -116,9 +168,15 @@ bool SyntacticAnalyzer::isId(){
 
 }
 
+bool SyntacticAnalyzer::isSemicolon(){
+
+    return lexerOutput->at(tokenIndex).second == ";";
+
+}
+
 void SyntacticAnalyzer::outputStatementProduction(){
 
-    productionRuleStrings.insert(productionRuleStrings.end(),
+    productionRuleStrings.insert(productionRuleStrings.begin()+1,
                                   "<Statement> -> <Declarative> | <Assign>\n");
 
 }
@@ -128,7 +186,6 @@ void SyntacticAnalyzer::outputCurrentTokenAndLexeme(){
     if(!foutOpened)
         return;
 
-    fout << "Token: " << setw(10) << left << lexerOutput->at(tokenIndex).first
-         << "Lexeme: " << lexerOutput->at(tokenIndex).second << endl;
-
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "\nToken: " + lexerOutput->at(tokenIndex).first + " Lexeme: " + lexerOutput->at(tokenIndex).second + "\n");
 }
