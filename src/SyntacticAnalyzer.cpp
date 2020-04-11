@@ -1,4 +1,4 @@
-#include "headers/SyntacticAnalyzer.h"
+﻿#include "headers/SyntacticAnalyzer.h"
 
 /**
  * Constructor that opens an output file if it was initialized to output to a file.
@@ -143,6 +143,9 @@ bool SyntacticAnalyzer::isAssign(){
 }
 
 bool SyntacticAnalyzer::isFactor() {
+    productionRuleStrings.insert(productionRuleStrings.end(),
+        "<Factor> -> (<Expression>) | <id> | <num>\n");
+
     if (lexerOutput->at(tokenIndex).second == "(") {
         tokenIndex++;
         productionRuleStrings.insert(productionRuleStrings.end(),
@@ -195,10 +198,30 @@ bool SyntacticAnalyzer::expressionPrime() {
 }
 
 bool SyntacticAnalyzer::isTerm() {
+    productionRuleStrings.insert(productionRuleStrings.end(),
+        "<Term> -> <Factor> < Term'>\n");
 
+    if (isFactor()) {
+        tokenIndex++;
+        if (lexerOutput->at(tokenIndex).second == ";") {
+            productionRuleStrings.insert(productionRuleStrings.end(),
+                "<Term'> -> * <Factor> <Term'> | / <Factor> < Term'>  | ϵ\n");
+            return true;
+        }
 
+        else if (termPrime()) {
+            return true;
+        }
+
+        else
+            productionRuleStrings.insert(productionRuleStrings.end(),
+                "R7 Error = Expected lexeme: ;\n");
+    }
+    else
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "R9 Error = Expected integer | real | id | (<expression>)\n");
+    return false;
 }
-
 
 bool SyntacticAnalyzer::termPrime() {
 

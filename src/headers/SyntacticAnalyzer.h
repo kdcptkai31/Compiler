@@ -24,6 +24,7 @@ public:
     bool isTerm();
     bool termPrime();
     bool isFactor();
+    bool isNumber();
 
 private:
     SymbolTable symbolTable;
