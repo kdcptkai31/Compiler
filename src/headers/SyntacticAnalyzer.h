@@ -20,6 +20,10 @@ public:
     bool isDeclarative();
     bool isAssign();
     bool isExpression();
+    bool expressionPrime();
+    bool isTerm();
+    bool termPrime();
+    bool isFactor();
 
 private:
     SymbolTable symbolTable;

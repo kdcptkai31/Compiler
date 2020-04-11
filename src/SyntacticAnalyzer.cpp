@@ -108,45 +108,102 @@ bool SyntacticAnalyzer::isDeclarative(){
 
 }
 
-//bool SyntacticAnalyzer::isAssign(){
-//
-//    if (!isId()){
-//
-//        //report error
-//        return false;
-//
-//    }
-//
-//    productionRuleStrings.insert(productionRuleStrings.end(),
-//            "<Assign> -> <id> = <Expression>\n");
-//    tokenIndex++;
-//    if (lexerOutput->at(tokenIndex).second == "="){
-//
-//        tokenIndex++;
-//        if (isExpression()){
-//
-//            tokenIndex++;
-//            if (lexerOutput->at(tokenIndex).second == ";")
-//                    return true;
-//                else{
-//
-//                    //report error
-//                    return false;
-//                }
-//        }else{
-//
-//                //report error
-//                return false;
-//            }
-//    }
-//
-//}
-//
-//bool SyntacticAnalyzer::isExpression() {
-//
-//
-//
-//}
+bool SyntacticAnalyzer::isAssign(){
+
+    if (!isId()){
+
+        //report error
+        return false;
+
+    }
+
+    productionRuleStrings.insert(productionRuleStrings.end(),
+            "<Assign> -> <id> = <Expression>\n");
+    tokenIndex++;
+    if (lexerOutput->at(tokenIndex).second == "="){
+
+        tokenIndex++;
+        if (isExpression()){
+
+            tokenIndex++;
+            if (lexerOutput->at(tokenIndex).second == ";")
+                    return true;
+                else{
+
+                    //report error
+                    return false;
+                }
+        }else{
+
+                //report error
+                return false;
+            }
+    }
+
+}
+
+bool SyntacticAnalyzer::isFactor() {
+    if (lexerOutput->at(tokenIndex).second == "(") {
+        tokenIndex++;
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "<factor> -> (<expression>)\n");
+
+        if (isExpression()) {
+            tokenIndex++;
+
+            if (lexerOutput->at(tokenIndex).second == ")") {
+                return true;
+            }
+            else
+                productionRuleStrings.insert(productionRuleStrings.end(),
+                    "R9 Error = Expected lexeme after expression: )\n");
+        }
+        else
+            productionRuleStrings.insert(productionRuleStrings.end(),
+                "R9 Error = Expected expression after lexeme: (\n");
+    }
+    
+    else if (isId()) {
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "<factor> -> <id>\n");
+        return true;
+    }
+
+    else if (isNumber()) {
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "<factor> -> <integer> | <real>\n");
+        return true;
+    }
+
+    else
+        return false;
+}
+
+bool SyntacticAnalyzer::isNumber() {
+    return lexerOutput->at(tokenIndex).first == "INTEGER" || lexerOutput->at(tokenIndex).first == "REAL";
+
+}
+
+
+bool SyntacticAnalyzer::isExpression() {
+    return expressionPrime() && isTerm();
+
+}
+
+bool SyntacticAnalyzer::expressionPrime() {
+    //if(lexerOutput->at(tokenIndex).second)
+}
+
+bool SyntacticAnalyzer::isTerm() {
+
+
+}
+
+
+bool SyntacticAnalyzer::termPrime() {
+
+
+}
 
 void SyntacticAnalyzer::printProductionRuleStrings(){
 
