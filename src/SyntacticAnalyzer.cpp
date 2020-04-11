@@ -54,12 +54,8 @@ bool SyntacticAnalyzer::isStatementList(){
         return true;
     }
     
-
-    
     cout << "ERROR DETECTED\n";
     return false;
-
-
 }
 
 bool SyntacticAnalyzer::isStatement(){
@@ -69,10 +65,10 @@ bool SyntacticAnalyzer::isStatement(){
         return true;
     }
 
-//    if(isAssign()){
-//        outputStatementProduction();
-//        return true;
-//    }
+    if(isAssign()){
+        outputStatementProduction();
+        return true;
+    }
 
     return false;
 
@@ -110,35 +106,30 @@ bool SyntacticAnalyzer::isDeclarative(){
 
 bool SyntacticAnalyzer::isAssign(){
 
-    if (!isId()){
-
-        //report error
+    if (!isId())
         return false;
-
-    }
 
     productionRuleStrings.insert(productionRuleStrings.end(),
             "<Assign> -> <id> = <Expression>\n");
     tokenIndex++;
+
     if (lexerOutput->at(tokenIndex).second == "="){
-
         tokenIndex++;
-        if (isExpression()){
 
+        if (isExpression()){
             tokenIndex++;
+
             if (lexerOutput->at(tokenIndex).second == ";")
                     return true;
-                else{
-
-                    //report error
-                    return false;
-                }
-        }else{
-
-                //report error
-                return false;
-            }
+            else
+                productionRuleStrings.insert(productionRuleStrings.end(),
+                    "R4 Error = Expected lexeme: ;\n");
+        }
+        else
+            productionRuleStrings.insert(productionRuleStrings.end(),
+                "R4 Error = Expected integer | real | id | (<expression>)\n");
     }
+    return false;
 
 }
 
@@ -184,17 +175,54 @@ bool SyntacticAnalyzer::isFactor() {
 
 bool SyntacticAnalyzer::isNumber() {
     return lexerOutput->at(tokenIndex).first == "INTEGER" || lexerOutput->at(tokenIndex).first == "REAL";
-
 }
 
 
 bool SyntacticAnalyzer::isExpression() {
-    return expressionPrime() && isTerm();
+    productionRuleStrings.insert(productionRuleStrings.end(),
+        "<Expression> ->  <Term> < Expression'> ");
 
+    if (isTerm()) {
+        tokenIndex++;
+        if (lexerOutput->at(tokenIndex).second == ";") {
+            productionRuleStrings.insert(productionRuleStrings.end(),
+                "<Expression'> -> + <Terminal> <Expression'> |- <Terminal> <Expression'>  |ϵ\n");
+            tokenIndex--;
+            return true;
+        }
+
+        else if (expressionPrime()) {
+            tokenIndex--;
+            return true;
+        }
+    }
+    else
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "R9 Error = Expected integer | real | id | (<expression>)\n");
+    return false;
 }
 
 bool SyntacticAnalyzer::expressionPrime() {
-    //if(lexerOutput->at(tokenIndex).second)
+    productionRuleStrings.insert(productionRuleStrings.end(),
+        "<Expression'> -> + <Terminal> <Expression'> |- <Terminal> <Expression'>  |ϵ\n");
+
+    if (lexerOutput->at(tokenIndex).second == ";") {
+        return true;
+    }
+    
+    if (lexerOutput->at(tokenIndex).second == "+" || lexerOutput->at(tokenIndex).second == "-") {
+        tokenIndex++;
+
+        if (isTerm()) {
+            tokenIndex++;
+            return expressionPrime();
+        }
+    }
+
+    else
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "R6 Error = Expected lexeme: + | - | ;\n");
+    return false;
 }
 
 bool SyntacticAnalyzer::isTerm() {
@@ -206,16 +234,14 @@ bool SyntacticAnalyzer::isTerm() {
         if (lexerOutput->at(tokenIndex).second == ";") {
             productionRuleStrings.insert(productionRuleStrings.end(),
                 "<Term'> -> * <Factor> <Term'> | / <Factor> < Term'>  | ϵ\n");
+            tokenIndex--;
             return true;
         }
 
         else if (termPrime()) {
+            tokenIndex--;
             return true;
         }
-
-        else
-            productionRuleStrings.insert(productionRuleStrings.end(),
-                "R7 Error = Expected lexeme: ;\n");
     }
     else
         productionRuleStrings.insert(productionRuleStrings.end(),
@@ -231,6 +257,7 @@ bool SyntacticAnalyzer::termPrime() {
     }
     if (lexerOutput->at(tokenIndex).second == "/" || lexerOutput->at(tokenIndex).second == "*") {
         tokenIndex++;
+
         if (isFactor()) {
             tokenIndex++;
             return termPrime();
