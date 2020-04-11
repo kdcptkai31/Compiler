@@ -39,7 +39,6 @@ private:
     void outputStatementProduction();
     bool isId();
     bool isSemicolon();
-
 };
 
 #endif

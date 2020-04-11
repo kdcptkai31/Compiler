@@ -182,7 +182,7 @@ bool LexicalAnalyzer::DFA(const string& meaningfulUnit, int& acceptedStateType) 
         acceptedStateType = 0;
         accepted = true;
     }
-    else if (curState == 4){ //Valid Integer
+    else if (curState == 4 || curState == 3){ //Valid Integer
         acceptedStateType = 1;
         accepted = true;
     }
