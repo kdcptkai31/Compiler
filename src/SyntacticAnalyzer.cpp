@@ -224,8 +224,22 @@ bool SyntacticAnalyzer::isTerm() {
 }
 
 bool SyntacticAnalyzer::termPrime() {
-
-
+    productionRuleStrings.insert(productionRuleStrings.end(),
+        "<Term'> -> * <Factor> <Term'> | / <Factor> < Term'>  | ϵ\n");
+    if (lexerOutput->at(tokenIndex).second == ";") {
+        return true;
+    }
+    if (lexerOutput->at(tokenIndex).second == "/" || lexerOutput->at(tokenIndex).second == "*") {
+        tokenIndex++;
+        if (isFactor()) {
+            tokenIndex++;
+            return termPrime();
+        }
+    }
+    else
+        productionRuleStrings.insert(productionRuleStrings.end(),
+            "R8 Error = Expected lexeme: / | * | ;\n");
+    return false;
 }
 
 void SyntacticAnalyzer::printProductionRuleStrings(){
