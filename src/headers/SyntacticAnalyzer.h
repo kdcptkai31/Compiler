@@ -2,9 +2,9 @@
 #define COMPILER_SYNTACTICANALYZER_H
 
 #include "LexicalAnalyzer.h"
+#include <stack>
 
 using namespace std;
-
 
 class SyntacticAnalyzer{
 
@@ -15,30 +15,33 @@ public:
     void run();
 
     //Boolean Rules
-    bool isStatementList();
     bool isStatement();
     bool isDeclarative();
     bool isAssign();
     bool isExpression();
-    bool expressionPrime();
+    bool isExpressionPrime();
     bool isTerm();
-    bool termPrime();
+    bool isTermPrime();
     bool isFactor();
-    bool isNumber();
+
 
 private:
     SymbolTable symbolTable;
     vector<pair<string, string>>* lexerOutput;
+    vector<pair<string, string>> currentStatement;
+    stack<string> productionOutputs;
     int tokenIndex;
+    int statementParser;
     ofstream fout;
     bool foutOpened;
-    vector<string> productionRuleStrings;
 
-    void printProductionRuleStrings();
     void outputCurrentTokenAndLexeme();
     void outputStatementProduction();
-    bool isId();
-    bool isSemicolon();
+
+    //Helpers
+    void incrementParser();
+    bool isNumber();
+
 };
 
 #endif
