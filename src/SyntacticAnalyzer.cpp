@@ -32,7 +32,6 @@ void SyntacticAnalyzer::run() {
 
     do{
         
-
         currentStatement.emplace_back(lexerOutput->at(tokenIndex));
         while(lexerOutput->at(tokenIndex).first != "SEPARATOR"){
             //prints the token and lexemes to console---------------------------------------------------------------------------------------
@@ -62,7 +61,7 @@ void SyntacticAnalyzer::run() {
 
         }
 
-    }while(tokenIndex < lexerOutput->size()+1);
+    }while(tokenIndex < lexerOutput->size());
 
 }
 
