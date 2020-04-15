@@ -36,9 +36,6 @@ private:
     ofstream fout;
     bool foutOpened;
 
-    void outputCurrentTokenAndLexeme();
-    void outputStatementProduction();
-
     //Helpers
     void incrementParser();
     bool isNumber();

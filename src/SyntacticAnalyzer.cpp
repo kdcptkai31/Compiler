@@ -31,21 +31,15 @@ SyntacticAnalyzer::~SyntacticAnalyzer() {
 void SyntacticAnalyzer::run() {
 
     do{
-        
+
         currentStatement.emplace_back(lexerOutput->at(tokenIndex));
-        while(lexerOutput->at(tokenIndex).first != "SEPARATOR"){
-            //prints the token and lexemes to console---------------------------------------------------------------------------------------
-            cout << "Token: " << lexerOutput->at(tokenIndex).first <<
-                " Lexeme: " << lexerOutput->at(tokenIndex).second << "\n";
+        while(lexerOutput->at(tokenIndex).second != ";"){
 
             tokenIndex++;
             currentStatement.emplace_back(lexerOutput->at(tokenIndex));
             /*cout << productionOutputs.top() << "\n";
             productionOutputs.pop();*/
         }
-        if (lexerOutput->at(tokenIndex).second == ";")
-            cout << "Token: " << lexerOutput->at(tokenIndex).first <<
-            " Lexeme: " << lexerOutput->at(tokenIndex).second << "\n";
 
         if(isStatement()){
 
@@ -62,11 +56,10 @@ void SyntacticAnalyzer::run() {
         }
 
     }while(tokenIndex < lexerOutput->size());
-
 }
 
 bool SyntacticAnalyzer::isStatement(){
-
+    
     statementParser = 0;
 
     if(isDeclarative()){
@@ -253,18 +246,3 @@ bool SyntacticAnalyzer::isNumber() {
     return currentStatement.at(statementParser).first == "INTEGER" ||
            currentStatement.at(statementParser).first == "REAL";
 }
-
-//void SyntacticAnalyzer::outputStatementProduction(){
-//
-//    productionRuleStrings.insert(productionRuleStrings.begin()+1,
-//                                  "<Statement> -> <Declarative> | <Assign>\n");
-//
-//}
-//
-//void SyntacticAnalyzer::outputCurrentTokenAndLexeme(){
-//
-//    if(!foutOpened)
-//        return;
-//
-//    cout << "Token: " << lexerOutput->at(tokenIndex).first << " Lexeme:" << lexerOutput->at(tokenIndex).second << "\n";
-//}
