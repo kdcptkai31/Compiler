@@ -35,10 +35,12 @@ void SyntacticAnalyzer::run() {
         currentStatement.emplace_back(lexerOutput->at(tokenIndex));
         while(lexerOutput->at(tokenIndex).second != ";"){
 
-            tokenIndex++;
-            currentStatement.emplace_back(lexerOutput->at(tokenIndex));
             /*cout << productionOutputs.top() << "\n";
             productionOutputs.pop();*/
+
+            tokenIndex++;
+            currentStatement.emplace_back(lexerOutput->at(tokenIndex));
+            
         }
 
         if(isStatement()){
@@ -56,6 +58,10 @@ void SyntacticAnalyzer::run() {
         }
 
     }while(tokenIndex < lexerOutput->size());
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 }
 
 bool SyntacticAnalyzer::isStatement(){
