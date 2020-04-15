@@ -31,14 +31,22 @@ SyntacticAnalyzer::~SyntacticAnalyzer() {
 void SyntacticAnalyzer::run() {
 
     do{
+        
 
         currentStatement.emplace_back(lexerOutput->at(tokenIndex));
         while(lexerOutput->at(tokenIndex).first != "SEPARATOR"){
+            //prints the token and lexemes to console---------------------------------------------------------------------------------------
+            cout << "Token: " << lexerOutput->at(tokenIndex).first <<
+                " Lexeme: " << lexerOutput->at(tokenIndex).second << "\n";
 
             tokenIndex++;
             currentStatement.emplace_back(lexerOutput->at(tokenIndex));
-
+            /*cout << productionOutputs.top() << "\n";
+            productionOutputs.pop();*/
         }
+        if (lexerOutput->at(tokenIndex).second == ";")
+            cout << "Token: " << lexerOutput->at(tokenIndex).first <<
+            " Lexeme: " << lexerOutput->at(tokenIndex).second << "\n";
 
         if(isStatement()){
 
@@ -54,7 +62,7 @@ void SyntacticAnalyzer::run() {
 
         }
 
-    }while(tokenIndex < lexerOutput->size());
+    }while(tokenIndex < lexerOutput->size()+1);
 
 }
 
@@ -63,10 +71,10 @@ bool SyntacticAnalyzer::isStatement(){
     statementParser = 0;
 
     if(isDeclarative()){
-        productionOutputs.push("");
+        productionOutputs.push("QQQQQQQQQQQQQQQQQQQQ");
         return true;
     }else if(isAssign()){
-        productionOutputs.push("");
+        productionOutputs.push("TTTTTTTTTTTTTTTTTTT");
         return true;
     }
 
@@ -80,11 +88,11 @@ bool SyntacticAnalyzer::isDeclarative(){
         incrementParser();
         if(currentStatement.at(1).first == "IDENTIFIER"){
             incrementParser();
-            productionOutputs.push("");
+            productionOutputs.push("UUUUUUUUUUUUUUUUU");
 
             if(currentStatement.at(2).second == ";"){
 
-                productionOutputs.push("");
+                productionOutputs.push("LLLLLLLLLLLLLLLLL");
                 return true;
 
             }
@@ -100,13 +108,14 @@ bool SyntacticAnalyzer::isAssign(){
     if(currentStatement.at(statementParser).first == "IDENTIFIER"){
         incrementParser();
         if(currentStatement.at(statementParser).second == "="){
+
             incrementParser();
             if(isExpression()){
-                productionOutputs.push("");
+                productionOutputs.push("$$$$$$$$$$$$$$$$$$");
                 incrementParser();
                 if(currentStatement.at(statementParser).second == ";"){
 
-                    productionOutputs.push("");
+                    productionOutputs.push("MMMMMMMMMMMMMMMMMMMMMMMMMMM");
                     return true;
 
                 }
@@ -124,7 +133,7 @@ bool SyntacticAnalyzer::isExpression(){
         incrementParser();
         if(isExpressionPrime()){
 
-            productionOutputs.push("");
+            productionOutputs.push("HHHHHHHHHHHHHHHH");
             return true;
 
         }
@@ -142,7 +151,7 @@ bool SyntacticAnalyzer::isExpressionPrime(){
             incrementParser();
             if(isExpressionPrime()){
 
-                productionOutputs.push("");
+                productionOutputs.push("YYYYYYYYYYYYYYYYYY");
                 return true;
 
             }
@@ -150,7 +159,7 @@ bool SyntacticAnalyzer::isExpressionPrime(){
     }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == ";"){
 
         statementParser--;
-        productionOutputs.push("");
+        productionOutputs.push("FFFFFFFFFFFFFFFFFFFF");
         return true;
 
     }
@@ -165,7 +174,7 @@ bool SyntacticAnalyzer::isTerm(){
         incrementParser();
         if(isTermPrime()){
 
-            productionOutputs.push("");
+            productionOutputs.push("CCCCCCCCCCCCCCCCC");
             return true;
 
         }
@@ -183,7 +192,7 @@ bool SyntacticAnalyzer::isTermPrime(){
             incrementParser();
             if(isTermPrime()){
 
-                productionOutputs.push("");
+                productionOutputs.push("2222222222222222222222");
                 return true;
 
             }
@@ -192,7 +201,7 @@ bool SyntacticAnalyzer::isTermPrime(){
              currentStatement.at(statementParser).second == "-" || currentStatement.at(statementParser).second == ";"){
 
         statementParser--;
-        productionOutputs.push("");
+        productionOutputs.push("/////////////////////////");
         return true;
 
     }
@@ -209,19 +218,19 @@ bool SyntacticAnalyzer::isFactor(){
             incrementParser();
             if (currentStatement.at(statementParser).second == ")") {
 
-                productionOutputs.push("");
+                productionOutputs.push("----------------------------");
                 return true;
 
             }
         }
     }else if(currentStatement.at(statementParser).first == "IDENTIFIER"){
 
-        productionOutputs.push("");
+        productionOutputs.push("000000000000000000000");
         return true;
 
     }else if(isNumber()){
 
-        productionOutputs.push("");
+        productionOutputs.push("zzzzzzzzzzzzzzzzzzzzzzzzz");
         return true;
 
     }
@@ -258,6 +267,5 @@ bool SyntacticAnalyzer::isNumber() {
 //    if(!foutOpened)
 //        return;
 //
-//        productionRuleStrings.insert(productionRuleStrings.end(),
-//            "\nToken: " + lexerOutput->at(tokenIndex).first + " Lexeme: " + lexerOutput->at(tokenIndex).second + "\n");
+//    cout << "Token: " << lexerOutput->at(tokenIndex).first << " Lexeme:" << lexerOutput->at(tokenIndex).second << "\n";
 //}

@@ -29,6 +29,7 @@ private:
     SymbolTable symbolTable;
     vector<pair<string, string>>* lexerOutput;
     vector<pair<string, string>> currentStatement;
+
     stack<string> productionOutputs;
     int tokenIndex;
     int statementParser;
