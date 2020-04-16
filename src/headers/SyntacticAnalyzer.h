@@ -17,6 +17,7 @@ public:
     //Boolean Rules
     bool isStatement();
     bool isDeclarative();
+    bool isDeclarativePrime();
     bool isAssign();
     bool isExpression();
     bool isExpressionPrime();
