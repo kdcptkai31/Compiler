@@ -27,7 +27,13 @@ int main() {
 //        cout << lexerOutput->at(i).first << " " << lexerOutput->at(i).second << endl;
     //True to print the production rules, false to just analyze.
     SyntacticAnalyzer syntacticAnalyzer(true, lexer.getLexerOutput());
-    syntacticAnalyzer.run();
+    if(syntacticAnalyzer.run()){
+
+        //analyzer passed, yay
+
+    } else{
+        //analyzer failed somewhere
+    }
 
 
     return 0;

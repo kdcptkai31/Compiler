@@ -15,6 +15,7 @@ SyntacticAnalyzer::SyntacticAnalyzer(bool printProductions, vector<pair<string, 
 
     lexerOutput = lOutput;
     tokenIndex = 0;
+    statementCounter = 1;
 
 }
 
@@ -28,7 +29,9 @@ SyntacticAnalyzer::~SyntacticAnalyzer() {
  * Runs the list of tokens and lexemes from the lexer through the syntactic analyzer
  * @param lexer
  */
-void SyntacticAnalyzer::run() {
+bool SyntacticAnalyzer::run() {
+
+    bool analyzerPassed = true;
 
     do{
 
@@ -47,15 +50,20 @@ void SyntacticAnalyzer::run() {
             //OutputPrintProductions();
             currentStatement.clear();
             tokenIndex++;
+            statementCounter++;
 
         } else{
 
             cout << "ERROR DETECTED\n";
+            analyzerPassed = false;
             break;
 
         }
 
     }while(tokenIndex < lexerOutput->size());
+
+    return analyzerPassed;
+
 }
 
 bool SyntacticAnalyzer::isStatement(){
