@@ -22,12 +22,18 @@ int main() {
 
     LexicalAnalyzer lexer;
     lexer.run(fileIn);
-    /*vector<pair<string, string>>* lexerOutput = lexer.getLexerOutput();
-    for (int i = 0; i < lexerOutput->size(); i++)
-        cout << lexerOutput->at(i).first << " " << lexerOutput->at(i).second << endl;*/
+//    vector<pair<string, string>>* lexerOutput = lexer.getLexerOutput();
+//    for (int i = 0; i < lexerOutput->size(); i++)
+//        cout << lexerOutput->at(i).first << " " << lexerOutput->at(i).second << endl;
     //True to print the production rules, false to just analyze.
     SyntacticAnalyzer syntacticAnalyzer(true, lexer.getLexerOutput());
-    syntacticAnalyzer.run();
+    if(syntacticAnalyzer.run()){
+
+        //analyzer passed, yay
+
+    } else{
+        //analyzer failed somewhere
+    }
 
 
     return 0;

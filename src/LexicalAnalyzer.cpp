@@ -113,7 +113,14 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
 
         }else if(currentChar == '-' || currentChar == '+'){
 
-            if(isdigit(fileIn.peek()))
+            if(currentUnit.length() > 0){
+
+                meaningfulUnits.insert(meaningfulUnits.end(), currentUnit);
+                currentUnit.clear();
+                meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
+
+
+            }else if(isdigit(fileIn.peek()))
                 currentUnit.append(string(1, currentChar));
             else
                 meaningfulUnits.insert(meaningfulUnits.end(), string(1, currentChar));
@@ -165,7 +172,7 @@ bool LexicalAnalyzer::DFA(const string& meaningfulUnit, int& acceptedStateType) 
                     {0, letter, digit, dollarSign, decimalPoint, signs, unknown},
                     {1,     2,     3,       7,           7,         3,      7},
                     {2,     2,     2,       2,           7,         7,      7},
-                    {3,     7,     4,       7,           7,         7,      7},
+                    {3,     7,     4,       7,           5,         7,      7},
                     {4,     7,     4,       7,           5,         7,      7},
                     {5,     7,     6,       7,           7,         7,      7},
                     {6,     7,     6,       7,           7,         7,      7},
@@ -182,7 +189,7 @@ bool LexicalAnalyzer::DFA(const string& meaningfulUnit, int& acceptedStateType) 
         acceptedStateType = 0;
         accepted = true;
     }
-    else if (curState == 4 || curState == 3){ //Valid Integer
+    else if (curState == 3 || curState == 4){ //Valid Integer
         acceptedStateType = 1;
         accepted = true;
     }

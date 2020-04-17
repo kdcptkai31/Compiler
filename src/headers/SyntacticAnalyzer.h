@@ -12,11 +12,12 @@ public:
 
     SyntacticAnalyzer(bool printProductions, vector<pair<string, string>>* lOutput);
     ~SyntacticAnalyzer();
-    void run();
+    bool run();
 
     //Boolean Rules
     bool isStatement();
     bool isDeclarative();
+    bool isDeclarativePrime();
     bool isAssign();
     bool isExpression();
     bool isExpressionPrime();
@@ -30,14 +31,15 @@ private:
     vector<pair<string, string>>* lexerOutput;
     vector<pair<string, string>> currentStatement;
 
-    stack<string> productionOutputs;
-    int tokenIndex;
-    int statementParser;
+    stack<string> productionOutputs;//Used to collect production rule output
+    int tokenIndex;                 //Used to construct potential statements from the lexer output
+    int statementParser;            //Keeps track of the current lexeme being analyzed in each statement
+    int statementCounter;           //Keeps track of the line number for error checks
     ofstream fout;
-    bool foutOpened;
+    bool foutOpened;                //True if they file is opened, false if no output is wanted
 
     //Helpers
-    void incrementParser();
+    void incrementParser();         //Increments statementParser, ensures no out of bounds errors
     bool isNumber();
 
 };
