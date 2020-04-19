@@ -49,7 +49,7 @@ bool SyntacticAnalyzer::run() {
 
             while (productionOutputs.size() != 0)
             {
-                cout << productionOutputs.top()<<endl;
+                cout << productionOutputs.front()<<endl;
                 productionOutputs.pop();
             }
 
@@ -76,20 +76,21 @@ bool SyntacticAnalyzer::run() {
 }
 
 bool SyntacticAnalyzer::isStatement(){
-    /*while (currentStatement.at(statementParser).second != "\n")
-    {
-        cout << currentStatement.at(statementParser).second << " ";
-        incrementParser();
-    }*/
+
+    for(int i = 0; i < currentStatement.size(); i++) {
+        cout << currentStatement.at(i).second << " ";
+    }
+    cout << "\n";
+
     statementParser = 0;
 
     if(isDeclarative()){
         //cout << "<Declarative'> -> , <id> <Declarative'> | epilson\n";
-        productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
+        //productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
         return true;
     }else if(isAssign()){
         //cout << "<Expression'> -> + <Terminal> <Expression'> |- <Terminal> <Expression'> |ϵ\n";
-        productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
+        //productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
         return true;
     }
 
@@ -99,7 +100,9 @@ bool SyntacticAnalyzer::isStatement(){
 
 bool SyntacticAnalyzer::isDeclarative(){
 
+    
     if(currentStatement.at(statementParser).first == "KEYWORD"){
+        productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
         incrementParser();
         if(currentStatement.at(statementParser).first == "IDENTIFIER"){
             incrementParser();
@@ -151,13 +154,14 @@ bool SyntacticAnalyzer::isDeclarativePrime(){
 }
 
 bool SyntacticAnalyzer::isAssign(){
-
+    productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
     if(currentStatement.at(statementParser).first == "IDENTIFIER"){
         incrementParser();
         if(currentStatement.at(statementParser).second == "="){
+            productionOutputs.push("<Assign> -> <id> = <Expression> ;");
             incrementParser();
             if(isExpression()){
-                productionOutputs.push("<Assign> -> <id> = <Expression> ;");
+                //productionOutputs.push("<Assign> -> <id> = <Expression> ;");
                 incrementParser();
                 if(currentStatement.at(statementParser).second == ";"){
 
@@ -174,12 +178,13 @@ bool SyntacticAnalyzer::isAssign(){
 }
 
 bool SyntacticAnalyzer::isExpression(){
+    productionOutputs.push("<Expression> -> <Terminal> <Expression'>");
 
     if(isTerm()){
         incrementParser();
         if(isExpressionPrime()){
 
-            productionOutputs.push("<Expression> -> <Terminal> <Expression'>");
+            //productionOutputs.push("<Expression> -> <Terminal> <Expression'>");
             return true;
 
         }
@@ -218,12 +223,12 @@ bool SyntacticAnalyzer::isExpressionPrime(){
 }
 
 bool SyntacticAnalyzer::isTerm(){
-
+    productionOutputs.push("<Term> -> <Factor> <Term'>");
     if(isFactor()){
         incrementParser();
         if(isTermPrime()){
 
-            productionOutputs.push("<Term> -> <Factor> <Term'>");
+            //productionOutputs.push("<Term> -> <Factor> <Term'>");
             return true;
 
         }

@@ -3,6 +3,7 @@
 
 #include "LexicalAnalyzer.h"
 #include <stack>
+#include<queue>
 
 using namespace std;
 
@@ -31,7 +32,7 @@ private:
     vector<pair<string, string>>* lexerOutput;
     vector<pair<string, string>> currentStatement;
 
-    stack<string> productionOutputs;//Used to collect production rule output
+    queue<string> productionOutputs;//Used to collect production rule output
     int tokenIndex;                 //Used to construct potential statements from the lexer output
     int statementParser;            //Keeps track of the current lexeme being analyzed in each statement
     int statementCounter;           //Keeps track of the line number for error checks
