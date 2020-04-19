@@ -25,6 +25,8 @@ public:
     bool isTerm();
     bool isTermPrime();
     bool isFactor();
+    void printLexemeLine();
+    void printStatementRules();
 
 
 private:

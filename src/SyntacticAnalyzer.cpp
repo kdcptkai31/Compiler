@@ -45,16 +45,8 @@ bool SyntacticAnalyzer::run() {
 
         if(isStatement()){
 
-            while (productionOutputs.size() != 0)
-            {
-                cout << productionOutputs.front()<<endl;
-				fout << productionOutputs.front() << endl;
-                productionOutputs.pop();
-            }
-			fout << endl;
-            
+            printStatementRules();
             cout << "GOOD\n";
-            //OutputPrintProductions();
             currentStatement.clear();
             tokenIndex++;
             statementCounter++;
@@ -75,56 +67,39 @@ bool SyntacticAnalyzer::run() {
 }
 
 bool SyntacticAnalyzer::isStatement(){
-
-    for(int i = 0; i < currentStatement.size(); i++) {
-        cout << currentStatement.at(i).second << " ";
-		fout << currentStatement.at(i).second << " ";
-    }
-    cout << "\n";
-	fout << "\n";
-
+    printLexemeLine();
     statementParser = 0;
 
-    if(isDeclarative()){
-        //cout << "<Declarative'> -> , <id> <Declarative'> | epilson\n";
-        //productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
+    if(isDeclarative())
         return true;
-    }else if(isAssign()){
-        //cout << "<Expression'> -> + <Terminal> <Expression'> |- <Terminal> <Expression'> |ϵ\n";
-        //productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
+    else if(isAssign())
         return true;
-    }
 
+    fout << "Synatax Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isDeclarative(){
 
     
-    if(currentStatement.at(statementParser).first == "KEYWORD"){
+    if (currentStatement.at(statementParser).first == "KEYWORD") {
         productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
         incrementParser();
-        if(currentStatement.at(statementParser).first == "IDENTIFIER"){
+        if (currentStatement.at(statementParser).first == "IDENTIFIER") {
             incrementParser();
             productionOutputs.push("<Declarative> -> <Type> <id> <Declarative'> ;");
-
-            //productionOutputs.push("UUUUUUUUUUUUUUUUU");
-            if(isDeclarativePrime()){
+            if (isDeclarativePrime()) {
                 incrementParser();
-                if(currentStatement.at(statementParser).second == ";"){
-                    //cout << "<Declarative> -> <Type> <id> <Declarative'> ;\n";
-                    //productionOutputs.push("<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon");
-
+                if (currentStatement.at(statementParser).second == ";")
                     return true;
-
-                }
             }
         }
     }
+    else if (currentStatement.at(statementParser).first == "IDENTIFIER")
+        return false;
 
+    fout << "Declaration Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isDeclarativePrime(){
@@ -133,25 +108,19 @@ bool SyntacticAnalyzer::isDeclarativePrime(){
         incrementParser();
         if(currentStatement.at(statementParser).first == "IDENTIFIER"){
             incrementParser();
-            if(isDeclarativePrime()) {
-                //productionOutputs.push("");
+            if(isDeclarativePrime()) 
                 return true;
-
-            }
         }
         //epsilon case
     }else if(currentStatement.at(statementParser).second == ";"){
-
-        //cout << "<Statement> -> <Declarative> | <Assign>\n";
         productionOutputs.push("<Declarative'> -> , <id> <Declarative'> | epsilon");
         statementParser--;
         
         return true;
-
     }
 
+    fout << "Declarative' Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isAssign(){
@@ -162,20 +131,15 @@ bool SyntacticAnalyzer::isAssign(){
             productionOutputs.push("<Assign> -> <id> = <Expression> ;");
             incrementParser();
             if(isExpression()){
-                //productionOutputs.push("<Assign> -> <id> = <Expression> ;");
                 incrementParser();
-                if(currentStatement.at(statementParser).second == ";"){
-
-                    //productionOutputs.push("");
+                if(currentStatement.at(statementParser).second == ";")
                     return true;
-
-                }
             }
         }
     }
 
+    fout << "Assignment Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isExpression(){
@@ -183,16 +147,12 @@ bool SyntacticAnalyzer::isExpression(){
 
     if(isTerm()){
         incrementParser();
-        if(isExpressionPrime()){
-
-            //productionOutputs.push("<Expression> -> <Terminal> <Expression'>");
+        if(isExpressionPrime())
             return true;
-
-        }
     }
 
+    fout << "Expression Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isExpressionPrime(){
@@ -203,12 +163,8 @@ bool SyntacticAnalyzer::isExpressionPrime(){
         incrementParser();
         if(isTerm()){
             incrementParser();
-            if(isExpressionPrime()){
-
-                //productionOutputs.push("<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon");
+            if(isExpressionPrime())
                 return true;
-
-            }
         }
         //epsilon case
     }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == ";"){
@@ -219,24 +175,20 @@ bool SyntacticAnalyzer::isExpressionPrime(){
 
     }
 
+    fout << "Expression' Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isTerm(){
     productionOutputs.push("<Term> -> <Factor> <Term'>");
     if(isFactor()){
         incrementParser();
-        if(isTermPrime()){
-
-            //productionOutputs.push("<Term> -> <Factor> <Term'>");
+        if(isTermPrime())
             return true;
-
-        }
     }
 
+    fout << "Term Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isTermPrime(){
@@ -245,14 +197,9 @@ bool SyntacticAnalyzer::isTermPrime(){
         productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
         incrementParser();
         if(isFactor()){
-
             incrementParser();
-            if(isTermPrime()){
-
-                //productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
+            if (isTermPrime())
                 return true;
-
-            }
         }
         //epsilon case
     }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == "+" ||
@@ -261,11 +208,10 @@ bool SyntacticAnalyzer::isTermPrime(){
         statementParser--;
         productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
         return true;
-
     }
 
+    fout << "Term' Rule Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isFactor(){
@@ -282,7 +228,6 @@ bool SyntacticAnalyzer::isFactor(){
             }
         }
     }else if(currentStatement.at(statementParser).first == "IDENTIFIER"){
-        //cout << "<Statement> -> <Declarative> | <Assign>\n";
         productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
         return true;
 
@@ -290,11 +235,10 @@ bool SyntacticAnalyzer::isFactor(){
 
         productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
         return true;
-
     }
 
+    fout << "Factor Rule Error\n";
     return false;
-
 }
 
 /**
@@ -305,10 +249,25 @@ void SyntacticAnalyzer::incrementParser(){
     statementParser++;
     if(statementParser == currentStatement.size())
         statementParser--;
-
 }
 
 bool SyntacticAnalyzer::isNumber() {
     return currentStatement.at(statementParser).first == "INTEGER" ||
            currentStatement.at(statementParser).first == "REAL";
+}
+
+void SyntacticAnalyzer::printLexemeLine() {
+    for (int i = 0; i < currentStatement.size(); i++) {
+        fout << currentStatement.at(i).second << " ";
+    }
+    fout << "\n";
+}
+
+void SyntacticAnalyzer::printStatementRules() {
+    while (productionOutputs.size() != 0)
+    {
+        fout << productionOutputs.front() << endl;
+        productionOutputs.pop();
+    }
+    fout << "\n";
 }
