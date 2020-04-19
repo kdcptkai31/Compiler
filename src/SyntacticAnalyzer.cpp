@@ -53,6 +53,7 @@ bool SyntacticAnalyzer::run() {
 
         } else{
 
+            fout << "Error on line: " << statementCounter << endl;
             cout << "ERROR DETECTED\n";
             analyzerPassed = false;
             break;
@@ -75,7 +76,7 @@ bool SyntacticAnalyzer::isStatement(){
     else if(isAssign())
         return true;
 
-    fout << "Synatax Error\n";
+    fout << "Syntax Error\n";
     return false;
 }
 
