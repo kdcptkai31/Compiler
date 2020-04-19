@@ -38,8 +38,6 @@ bool SyntacticAnalyzer::run() {
         currentStatement.emplace_back(lexerOutput->at(tokenIndex));
         while(lexerOutput->at(tokenIndex).second != ";"){
 
-            
-
             tokenIndex++;
             currentStatement.emplace_back(lexerOutput->at(tokenIndex));
             
@@ -50,9 +48,10 @@ bool SyntacticAnalyzer::run() {
             while (productionOutputs.size() != 0)
             {
                 cout << productionOutputs.front()<<endl;
+				fout << productionOutputs.front() << endl;
                 productionOutputs.pop();
             }
-
+			fout << endl;
             
             cout << "GOOD\n";
             //OutputPrintProductions();
@@ -79,8 +78,10 @@ bool SyntacticAnalyzer::isStatement(){
 
     for(int i = 0; i < currentStatement.size(); i++) {
         cout << currentStatement.at(i).second << " ";
+		fout << currentStatement.at(i).second << " ";
     }
     cout << "\n";
+	fout << "\n";
 
     statementParser = 0;
 
