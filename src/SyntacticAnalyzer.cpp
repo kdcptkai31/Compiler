@@ -1,4 +1,4 @@
-#include "headers/SyntacticAnalyzer.h"
+﻿#include "headers/SyntacticAnalyzer.h"
 
 /**
  * Constructor that opens an output file if it was initialized to output to a file.
@@ -15,6 +15,7 @@ SyntacticAnalyzer::SyntacticAnalyzer(bool printProductions, vector<pair<string, 
 
     lexerOutput = lOutput;
     tokenIndex = 0;
+    statementCounter = 1;
 
 }
 
@@ -28,164 +29,246 @@ SyntacticAnalyzer::~SyntacticAnalyzer() {
  * Runs the list of tokens and lexemes from the lexer through the syntactic analyzer
  * @param lexer
  */
-void SyntacticAnalyzer::run() {
+bool SyntacticAnalyzer::run() {
 
-    if(lexerOutput->size() == 0)
-        return;
+    bool analyzerPassed = true;
 
-    while(tokenIndex != lexerOutput->size() && isStatementList()){
+    do{
 
-        printProductionRuleStrings();
-        productionRuleStrings.clear();
+        currentStatement.emplace_back(lexerOutput->at(tokenIndex));
+        while(lexerOutput->at(tokenIndex).second != ";"){
 
-    }
+            tokenIndex++;
+            currentStatement.emplace_back(lexerOutput->at(tokenIndex));
+            
+        }
 
-}
+        if(isStatement()){
 
-bool SyntacticAnalyzer::isStatementList(){
+            printStatementRules();
+            cout << "GOOD\n";
+            currentStatement.clear();
+            tokenIndex++;
+            statementCounter++;
 
-    outputCurrentTokenAndLexeme();
+        } else{
 
-    if(isStatement()) {
-        
-        productionRuleStrings.insert(productionRuleStrings.begin()+1,
-                                     "<Statement List> -> <Statement> | <Statement> <Statement List>\n");
+            fout << "Error on line: " << statementCounter << endl;
+            cout << "ERROR DETECTED\n";
+            analyzerPassed = false;
+            break;
 
-        return true;
-    }
-    
+        }
 
-    
-    cout << "ERROR DETECTED\n";
-    return false;
+    }while(tokenIndex < lexerOutput->size());
 
+
+    return analyzerPassed;
 
 }
 
 bool SyntacticAnalyzer::isStatement(){
+    printLexemeLine();
+    statementParser = 0;
 
-    if(isDeclarative()){
-        outputStatementProduction();
+    if(isDeclarative())
         return true;
-    }
+    else if(isAssign())
+        return true;
 
-//    if(isAssign()){
-//        outputStatementProduction();
-//        return true;
-//    }
-
+    fout << "Syntax Error\n";
     return false;
-
 }
 
 bool SyntacticAnalyzer::isDeclarative(){
 
-    if(!symbolTable.isType(lexerOutput->at(tokenIndex).second))
+    
+    if (currentStatement.at(statementParser).first == "KEYWORD") {
+        productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
+        incrementParser();
+        if (currentStatement.at(statementParser).first == "IDENTIFIER") {
+            incrementParser();
+            productionOutputs.push("<Declarative> -> <Type> <id> <Declarative'> ;");
+            if (isDeclarativePrime()) {
+                incrementParser();
+                if (currentStatement.at(statementParser).second == ";")
+                    return true;
+            }
+        }
+    }
+    else if (currentStatement.at(statementParser).first == "IDENTIFIER")
         return false;
 
-    productionRuleStrings.insert(productionRuleStrings.begin()+1,
-                                 "<Declarative> -> <Type> <id> ;\n");
-    tokenIndex++;
+    fout << "Declaration Rule Error\n";
+    return false;
+}
 
-    outputCurrentTokenAndLexeme();
-    if(isId()) {
-        tokenIndex++;
-        outputCurrentTokenAndLexeme();
-        if (isSemicolon()) {
-            tokenIndex++;
-            return true;
+bool SyntacticAnalyzer::isDeclarativePrime(){
 
-        } else {
-
-            if (foutOpened)
-                fout << "ERROR R2 violated- expected a ';' after the identifier\n";
-            else
-                cout << "ERROR R2 violated- expected a ';' after the identifier\n";
-
+    if(currentStatement.at(statementParser).second == ","){
+        incrementParser();
+        if(currentStatement.at(statementParser).first == "IDENTIFIER"){
+            incrementParser();
+            if(isDeclarativePrime()) 
+                return true;
         }
+        //epsilon case
+    }else if(currentStatement.at(statementParser).second == ";"){
+        productionOutputs.push("<Declarative'> -> , <id> <Declarative'> | epsilon");
+        statementParser--;
+        
+        return true;
+    }
+
+    fout << "Declarative' Rule Error\n";
+    return false;
+}
+
+bool SyntacticAnalyzer::isAssign(){
+    productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
+    if(currentStatement.at(statementParser).first == "IDENTIFIER"){
+        incrementParser();
+        if(currentStatement.at(statementParser).second == "="){
+            productionOutputs.push("<Assign> -> <id> = <Expression> ;");
+            incrementParser();
+            if(isExpression()){
+                incrementParser();
+                if(currentStatement.at(statementParser).second == ";")
+                    return true;
+            }
+        }
+    }
+
+    fout << "Assignment Rule Error\n";
+    return false;
+}
+
+bool SyntacticAnalyzer::isExpression(){
+    productionOutputs.push("<Expression> -> <Terminal> <Expression'>");
+
+    if(isTerm()){
+        incrementParser();
+        if(isExpressionPrime())
+            return true;
+    }
+
+    fout << "Expression Rule Error\n";
+    return false;
+}
+
+bool SyntacticAnalyzer::isExpressionPrime(){
+
+    if(currentStatement.at(statementParser).second == "+" || currentStatement.at(statementParser).second == "-"){
+        productionOutputs.push("<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon");
+
+        incrementParser();
+        if(isTerm()){
+            incrementParser();
+            if(isExpressionPrime())
+                return true;
+        }
+        //epsilon case
+    }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == ";"){
+
+        statementParser--;
+        productionOutputs.push("<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon");
+        return true;
 
     }
 
+    fout << "Expression' Rule Error\n";
+    return false;
 }
 
-//bool SyntacticAnalyzer::isAssign(){
-//
-//    if (!isId()){
-//
-//        //report error
-//        return false;
-//
-//    }
-//
-//    productionRuleStrings.insert(productionRuleStrings.end(),
-//            "<Assign> -> <id> = <Expression>\n");
-//    tokenIndex++;
-//    if (lexerOutput->at(tokenIndex).second == "="){
-//
-//        tokenIndex++;
-//        if (isExpression()){
-//
-//            tokenIndex++;
-//            if (lexerOutput->at(tokenIndex).second == ";")
-//                    return true;
-//                else{
-//
-//                    //report error
-//                    return false;
-//                }
-//        }else{
-//
-//                //report error
-//                return false;
-//            }
-//    }
-//
-//}
-//
-//bool SyntacticAnalyzer::isExpression() {
-//
-//
-//
-//}
+bool SyntacticAnalyzer::isTerm(){
+    productionOutputs.push("<Term> -> <Factor> <Term'>");
+    if(isFactor()){
+        incrementParser();
+        if(isTermPrime())
+            return true;
+    }
 
-void SyntacticAnalyzer::printProductionRuleStrings(){
-
-    if(!foutOpened)
-        return;
-
-    for(vector<string>::iterator it = productionRuleStrings.begin(); it != productionRuleStrings.end(); ++it)
-        fout << *it;
-
-    fout << "--------------------------------------\n";
-
-
+    fout << "Term Rule Error\n";
+    return false;
 }
 
+bool SyntacticAnalyzer::isTermPrime(){
 
-bool SyntacticAnalyzer::isId(){
+    if(currentStatement.at(statementParser).second == "*" || currentStatement.at(statementParser).second == "/"){
+        productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
+        incrementParser();
+        if(isFactor()){
+            incrementParser();
+            if (isTermPrime())
+                return true;
+        }
+        //epsilon case
+    }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == "+" ||
+             currentStatement.at(statementParser).second == "-" || currentStatement.at(statementParser).second == ";"){
 
-    return lexerOutput->at(tokenIndex).first == "IDENTIFIER";
+        statementParser--;
+        productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
+        return true;
+    }
 
+    fout << "Term' Rule Error\n";
+    return false;
 }
 
-bool SyntacticAnalyzer::isSemicolon(){
+bool SyntacticAnalyzer::isFactor(){
 
-    return lexerOutput->at(tokenIndex).second == ";";
+    if(currentStatement.at(statementParser).second == "("){
+        incrementParser();
+        if(isExpression()) {
+            incrementParser();
+            if (currentStatement.at(statementParser).second == ")") {
 
+                productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
+                return true;
+
+            }
+        }
+    }else if(currentStatement.at(statementParser).first == "IDENTIFIER"){
+        productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
+        return true;
+
+    }else if(isNumber()){
+
+        productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
+        return true;
+    }
+
+    fout << "Factor Rule Error\n";
+    return false;
 }
 
-void SyntacticAnalyzer::outputStatementProduction(){
+/**
+ * Makes sure the statement parser cannot go out of bounds.
+ */
+void SyntacticAnalyzer::incrementParser(){
 
-    productionRuleStrings.insert(productionRuleStrings.begin()+1,
-                                  "<Statement> -> <Declarative> | <Assign>\n");
-
+    statementParser++;
+    if(statementParser == currentStatement.size())
+        statementParser--;
 }
 
-void SyntacticAnalyzer::outputCurrentTokenAndLexeme(){
+bool SyntacticAnalyzer::isNumber() {
+    return currentStatement.at(statementParser).first == "INTEGER" ||
+           currentStatement.at(statementParser).first == "REAL";
+}
 
-    if(!foutOpened)
-        return;
+void SyntacticAnalyzer::printLexemeLine() {
+    for (int i = 0; i < currentStatement.size(); i++) {
+        fout << currentStatement.at(i).second << " ";
+    }
+    fout << "\n";
+}
 
-        productionRuleStrings.insert(productionRuleStrings.end(),
-            "\nToken: " + lexerOutput->at(tokenIndex).first + " Lexeme: " + lexerOutput->at(tokenIndex).second + "\n");
+void SyntacticAnalyzer::printStatementRules() {
+    while (productionOutputs.size() != 0)
+    {
+        fout << productionOutputs.front() << endl;
+        productionOutputs.pop();
+    }
+    fout << "\n";
 }
