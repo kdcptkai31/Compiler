@@ -6,7 +6,7 @@
 SymbolTable::SymbolTable(){
 
     separators.insert(separators.end(), {"'", "(", ")", "{", "}", "[", "]", ",", ".", ":", ";"});
-    operators.insert(operators.end(), {"*", "+", "-", "=", "/", ">", "<", "%"});
+    operators.insert(operators.end(), {"*", "+", "-", "=", "/", ">", "<", "%", ">=","<=","==","<>"});
     keywords.insert(keywords.end(), {"int", "float", "bool", "true", "false", "if", "else", "then", "endif",
                                                  "while", "whileend", "do", "doend", "for", "forend", "input", "output",
                                                  "and", "or", "not"});

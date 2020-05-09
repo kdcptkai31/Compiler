@@ -79,7 +79,7 @@ void LexicalAnalyzer::generateMeaningfulUnits(ifstream &fileIn) {
     while(fileIn.get(currentChar)){
 
         //Char is non-comment, non-whitespace separator
-        if(isMeaningfulUnitSeparator(currentChar) && currentChar != '.' && currentChar != '-' && currentChar != '+'){
+        if(isMeaningfulUnitSeparator(currentChar, fileIn, currentUnit) && currentChar != '.' && currentChar != '-' && currentChar != '+'){
 
             //Appends the current string unit to the data structure, followed by the current character unit
             if(!currentUnit.empty())
@@ -229,11 +229,22 @@ int LexicalAnalyzer::colNum(char ch) {
  * @param c
  * @return True if the character is a separator or operator, but not whitespace. False if it is whitespace or an alpha.
  */
-bool LexicalAnalyzer::isMeaningfulUnitSeparator(char c) {
+bool LexicalAnalyzer::isMeaningfulUnitSeparator(char c, ifstream &input, string unit) {
+    if ((unit == "<") && (c == '>' || c == '='))
+        return false;
+    else if (unit == ">" && c=='=')
+        return false;
+    else if (unit == "=" && c == '=')
+        return false;
 
     string s(1, c);
+    if (s == "<" && (input.peek() == '=' || input.peek() == '>'))
+        return false;
+    else if (s == ">" && input.peek() == '=')
+        return false;
+    else if (s == "=" && input.peek() == '=')
+        return false;
     return (symbolTable.isSeparator(s) || symbolTable.isOperator(s)) && !iswspace(c);
-
 }
 
 /**

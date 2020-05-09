@@ -32,9 +32,13 @@ public:
 private:
     SymbolTable symbolTable;
     vector<pair<string, string>>* lexerOutput;
-    vector<pair<string, string>> currentStatement;
 
-    queue<string> productionOutputs;//Used to collect production rule output
+    stack<string> productionOutputs;//Used to collect production rule output
+    stack<pair<string, string>> currentStatement;//Used to collect production rule output
+    pair<string, string> tmp;
+    vector<vector<string>> memoryTable;
+    int memoryAddress;
+    string declareType;
     int tokenIndex;                 //Used to construct potential statements from the lexer output
     int statementParser;            //Keeps track of the current lexeme being analyzed in each statement
     int statementCounter;           //Keeps track of the line number for error checks
@@ -44,6 +48,8 @@ private:
     //Helpers
     void incrementParser();         //Increments statementParser, ensures no out of bounds errors
     bool isNumber();
+    void addToMemoryTable(const string &s);
+
 
 };
 

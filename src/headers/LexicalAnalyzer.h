@@ -26,7 +26,7 @@ public:
 private:
 
     void generateMeaningfulUnits(ifstream& fileIn);         //Reads inputs from a given file stream
-    bool isMeaningfulUnitSeparator(char c);                 //Determines if a character is a meaningful unit separator
+    bool isMeaningfulUnitSeparator(char c, ifstream &input, string unit);                 //Determines if a character is a meaningful unit separator
     static bool DFA(const string& meaningfulUnit, int& acceptedStateType);//Determines if a unit is valid; then determines its type
     int getUnitType(const string& s);
     static bool stringIsNum(const string& s);
