@@ -37,31 +37,27 @@ SyntacticAnalyzer::~SyntacticAnalyzer() {
 bool SyntacticAnalyzer::run() {
 
     bool analyzerPassed = true;
-    vector<pair<string, string>> helper;
+    vector<pair<string, string>> tmpStatement;
     do{
         currentStatement.push(make_pair("$", "$"));
         do {
-            tmp = lexerOutput->at(tokenIndex);                                          // get the next lexeme (pair of lexeme and token)
-            helper.emplace_back(tmp);                                         // push into the queue
+            tmp = lexerOutput->at(tokenIndex);
+            tmpStatement.emplace_back(tmp);
             tokenIndex++;
         } while (tmp.second != ";");
        
-        helper.pop_back();
-        reverse(helper.begin(), helper.end());
-        for (int i = 0; i < helper.size(); i++) {
-            currentStatement.push(helper[i]);
+        tmpStatement.pop_back();
+        reverse(tmpStatement.begin(), tmpStatement.end());
+        for (int i = 0; i < tmpStatement.size(); i++) {
+            currentStatement.push(tmpStatement[i]);
         }
-        /*while (!currentStatement.empty())
-        {
-            cout << currentStatement.top().second<<" ";
-            currentStatement.pop();
-       }*/
-        if (isStatement())                                         // begin the analysis
+
+        if (isStatement())
             cout << "No error detected\n\n";
         else
             return false;
 
-        helper.clear();
+        tmpStatement.clear();
         declareType = "";
     } while (tokenIndex<lexerOutput->size());
     for (int i = 0; i < memoryTable.size(); i++) {
@@ -204,8 +200,6 @@ bool SyntacticAnalyzer::isTermPrime(){
         cout << tmp.second + "\t\tT' -> *FT' | /FT'\n";
         tmp = currentStatement.top();
         if (isFactor()) {
-            currentStatement.pop();
-            tmp = currentStatement.top();
             if (isTermPrime())
                 return true;
         }
@@ -231,7 +225,9 @@ bool SyntacticAnalyzer::isFactor(){
         if (isExpression()) {
             tmp = currentStatement.top();
             if (tmp.second == ")") {
+                currentStatement.pop();
                 cout << tmp.second + "\t\tF -> (E)\n";
+                tmp = currentStatement.top();
                 return true;
             }
         }
@@ -242,7 +238,7 @@ bool SyntacticAnalyzer::isFactor(){
         tmp = currentStatement.top();
         return true;
     }
-    else if (tmp.first == "INTEGER") {
+    else if (tmp.first == "INTEGER" || tmp.first == "REAL") {
         currentStatement.pop();
         cout << tmp.second + "\t\tF -> num\n";
         tmp = currentStatement.top();
@@ -265,11 +261,6 @@ void SyntacticAnalyzer::incrementParser(){
         statementParser--;
 }
 
-//bool SyntacticAnalyzer::isNumber() {
-//    return currentStatement.at(statementParser).first == "INTEGER" ||
-//           currentStatement.at(statementParser).first == "REAL";
-//}
-//
 //void SyntacticAnalyzer::printLexemeLine() {
 //    for (int i = 0; i < currentStatement.size(); i++) {
 //        fout << currentStatement.at(i).second << " ";
