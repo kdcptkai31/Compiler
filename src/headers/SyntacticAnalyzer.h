@@ -49,6 +49,7 @@ private:
     void incrementParser();         //Increments statementParser, ensures no out of bounds errors
     bool isNumber();
     void addToMemoryTable(const string &s);
+    void isInMemoryTable(const string &str)
 
 
 };

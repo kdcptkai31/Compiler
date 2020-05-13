@@ -123,11 +123,23 @@ bool SyntacticAnalyzer::isDeclarativePrime(){
 }
 
 void SyntacticAnalyzer::addToMemoryTable(const string& s) {
+
+    for(int i = 0; i < memoryTable.size(); i++){
+
+        if(memoryTable.at(i).at(0) == declareType && memoryTable.at(i).at(2) == s){
+
+            fout << "ERROR- Identifier: " + s + " is already in the symbol table\n";
+            return;
+
+        }
+    }
+
     vector<string> tmp;
     tmp.emplace_back(declareType);
     tmp.emplace_back(to_string(memoryAddress++));
     tmp.emplace_back(s);
     memoryTable.emplace_back(tmp);
+
 }
 
 
@@ -135,6 +147,7 @@ bool SyntacticAnalyzer::isAssign(){
     tmp = currentStatement.top();
     cout << tmp.second + " \t\tS -> A\n";
     if (tmp.first == "IDENTIFIER") { // First(A)
+        isInMemoryTable(tmp.second);
         currentStatement.pop();
         tmp = currentStatement.top();
         if (tmp.second == "=") {
@@ -233,6 +246,7 @@ bool SyntacticAnalyzer::isFactor(){
         }
     }
     else if (tmp.first == "IDENTIFIER") {
+        isInMemoryTable(tmp.second);
         currentStatement.pop();
         cout << tmp.second + "\t\tF -> id\n";
         tmp = currentStatement.top();
@@ -250,6 +264,18 @@ bool SyntacticAnalyzer::isFactor(){
     
 }
 
+void SyntacticAnalyzer::isInMemoryTable(const string &str) {
+
+    for(int i = 0; i < memoryTable.size(); i++){
+
+        if(memoryTable.at(i).at(2) == str)
+            return;
+
+    }
+
+    fout << "ERROR- Identifier: " + str + " has not been declared yet\n";
+
+}
 
 /**
  * Makes sure the statement parser cannot go out of bounds.
