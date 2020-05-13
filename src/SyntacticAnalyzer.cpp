@@ -16,7 +16,12 @@ SyntacticAnalyzer::SyntacticAnalyzer(bool printProductions, vector<pair<string, 
     lexerOutput = lOutput;
     tokenIndex = 0;
     statementCounter = 1;
-
+    memoryAddress = 5000;
+    vector<string> tmp;
+    tmp.emplace_back("Type");
+    tmp.emplace_back("Memory Location");
+    tmp.emplace_back("Identifier");
+    memoryTable.emplace_back(tmp);
 }
 
 SyntacticAnalyzer::~SyntacticAnalyzer() {
@@ -32,243 +37,242 @@ SyntacticAnalyzer::~SyntacticAnalyzer() {
 bool SyntacticAnalyzer::run() {
 
     bool analyzerPassed = true;
-
+    vector<pair<string, string>> tmpStatement;
     do{
-
-        currentStatement.emplace_back(lexerOutput->at(tokenIndex));
-        while(lexerOutput->at(tokenIndex).second != ";"){
-
+        currentStatement.push(make_pair("$", "$"));
+        do {
+            tmp = lexerOutput->at(tokenIndex);
+            tmpStatement.emplace_back(tmp);
             tokenIndex++;
-            currentStatement.emplace_back(lexerOutput->at(tokenIndex));
-            
+        } while (tmp.second != ";");
+       
+        tmpStatement.pop_back();
+        reverse(tmpStatement.begin(), tmpStatement.end());
+        for (int i = 0; i < tmpStatement.size(); i++) {
+            currentStatement.push(tmpStatement[i]);
         }
 
-        if(isStatement()){
+        if (isStatement())
+            fout << "\t\tNo error detected in the Statement\n\n";
+        else
+            return false;
 
-            printStatementRules();
-            cout << "GOOD\n";
-            currentStatement.clear();
-            tokenIndex++;
-            statementCounter++;
+        tmpStatement.clear();
+        declareType = "";
+    } while (tokenIndex<lexerOutput->size());
+    for (int i = 0; i < memoryTable.size(); i++) {
+        for (int j = 0; j < memoryTable.at(i).size(); j++)
+            fout << memoryTable.at(i).at(j)<<" ";
+        fout << "\n";
 
-        } else{
-
-            fout << "Error on line: " << statementCounter << endl;
-            cout << "ERROR DETECTED\n";
-            analyzerPassed = false;
-            break;
-
-        }
-
-    }while(tokenIndex < lexerOutput->size());
-
-
-    return analyzerPassed;
-
+    }
+    return true;
 }
 
 bool SyntacticAnalyzer::isStatement(){
-    printLexemeLine();
+    //printLexemeLine();
     statementParser = 0;
 
     if(isDeclarative())
         return true;
     else if(isAssign())
         return true;
-
     fout << "Syntax Error\n";
     return false;
 }
 
 bool SyntacticAnalyzer::isDeclarative(){
-
-    
-    if (currentStatement.at(statementParser).first == "KEYWORD") {
-        productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
-        incrementParser();
-        if (currentStatement.at(statementParser).first == "IDENTIFIER") {
-            incrementParser();
-            productionOutputs.push("<Declarative> -> <Type> <id> <Declarative'> ;");
-            if (isDeclarativePrime()) {
-                incrementParser();
-                if (currentStatement.at(statementParser).second == ";")
-                    return true;
-            }
+    tmp = currentStatement.top();
+    if (symbolTable.isType(tmp.second)) {  
+        declareType = tmp.second;
+        currentStatement.pop();
+        fout << tmp.second + "\t\t<Statement> -> <Declarative> | <Assign>\n";
+        tmp = currentStatement.top();
+        if (tmp.first == "IDENTIFIER") {
+            addToMemoryTable(tmp.second);
+            fout << tmp.second + "\t\t<Declarative> -> <Type> <id>\n";
+            currentStatement.pop();
+            tmp = currentStatement.top();
+            if (isDeclarativePrime())
+                return true;
         }
     }
-    else if (currentStatement.at(statementParser).first == "IDENTIFIER")
-        return false;
-
-    fout << "Declaration Rule Error\n";
     return false;
 }
 
 bool SyntacticAnalyzer::isDeclarativePrime(){
-
-    if(currentStatement.at(statementParser).second == ","){
-        incrementParser();
-        if(currentStatement.at(statementParser).first == "IDENTIFIER"){
-            incrementParser();
-            if(isDeclarativePrime()) 
+    if (tmp.second == ",") {
+        fout << tmp.second<<"\n";
+        currentStatement.pop();
+        tmp = currentStatement.top();
+        if (tmp.first == "IDENTIFIER") {
+            addToMemoryTable(tmp.second);
+            fout << tmp.second << "\n";
+            currentStatement.pop();
+            tmp = currentStatement.top();
+            if (isDeclarativePrime())
                 return true;
         }
-        //epsilon case
-    }else if(currentStatement.at(statementParser).second == ";"){
-        productionOutputs.push("<Declarative'> -> , <id> <Declarative'> | epsilon");
-        statementParser--;
-        
+    }
+    else if (tmp.second == "$") {
+        fout << "\t\t<Declarative'> -> , <id> <Declarative'> | epsilon\n";
         return true;
     }
-
-    fout << "Declarative' Rule Error\n";
+    fout << "Delcarative Prime Rule Error\n";
     return false;
 }
 
-bool SyntacticAnalyzer::isAssign(){
-    productionOutputs.push("<Statement> -> <Declarative> | <Assign>");
-    if(currentStatement.at(statementParser).first == "IDENTIFIER"){
-        incrementParser();
-        if(currentStatement.at(statementParser).second == "="){
-            productionOutputs.push("<Assign> -> <id> = <Expression> ;");
-            incrementParser();
-            if(isExpression()){
-                incrementParser();
-                if(currentStatement.at(statementParser).second == ";")
-                    return true;
-            }
+void SyntacticAnalyzer::addToMemoryTable(const string& s) {
+
+    for(int i = 0; i < memoryTable.size(); i++){
+
+        if(memoryTable.at(i).at(0) == declareType && memoryTable.at(i).at(2) == s){
+
+            fout << "\t\tERROR- Identifier: " + s + " is already in the symbol table\n";
+            return;
+
         }
     }
 
-    fout << "Assignment Rule Error\n";
+    vector<string> tmp;
+    tmp.emplace_back(declareType);
+    tmp.emplace_back(to_string(memoryAddress++));
+    tmp.emplace_back(s);
+    memoryTable.emplace_back(tmp);
+
+}
+
+
+bool SyntacticAnalyzer::isAssign(){
+    tmp = currentStatement.top();
+    fout << tmp.second + " \t\t<Statement> -> <Declarative> | <Assign>\n";
+    if (tmp.first == "IDENTIFIER") { // First(A)
+        isInMemoryTable(tmp.second);
+        currentStatement.pop();
+        tmp = currentStatement.top();
+        if (tmp.second == "=") {
+            fout << tmp.second + "\t\t<Assign> -> <id> = <Expression>\n";
+            currentStatement.pop();
+            tmp = currentStatement.top();
+            if (isExpression())                                   // check expression grammar
+                return true;
+        }
+    }
+    fout << "\tAssignation rule error: " << tmp.second << endl;
     return false;
 }
 
 bool SyntacticAnalyzer::isExpression(){
-    productionOutputs.push("<Expression> -> <Terminal> <Expression'>");
-
-    if(isTerm()){
-        incrementParser();
-        if(isExpressionPrime())
+    if (isTerm()) {                                               // First(E)
+        if (isExpressionPrime()) {
             return true;
+        }
     }
-
-    fout << "Expression Rule Error\n";
+    fout << "\tExpression rule error: " << currentStatement.top().second << endl;
     return false;
 }
 
 bool SyntacticAnalyzer::isExpressionPrime(){
-
-    if(currentStatement.at(statementParser).second == "+" || currentStatement.at(statementParser).second == "-"){
-        productionOutputs.push("<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon");
-
-        incrementParser();
-        if(isTerm()){
-            incrementParser();
-            if(isExpressionPrime())
+    tmp = currentStatement.top();
+    if (tmp.second == "+" || tmp.second == "-") {
+        fout << tmp.second + "\t\t<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon\n";
+        currentStatement.pop();
+        tmp = currentStatement.top();
+        if (isTerm()) {                                           // First(E')
+            if (isExpressionPrime())
                 return true;
         }
-        //epsilon case
-    }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == ";"){
-
-        statementParser--;
-        productionOutputs.push("<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon");
-        return true;
-
     }
-
-    fout << "Expression' Rule Error\n";
+    else {                                                                    // Follow(E')
+        if (tmp.second == "$")
+            return true;
+        if (tmp.second == ")") {
+            return true;
+        }
+    }
+    fout << "\tExpression Prime rule error: " << tmp.second << endl;
     return false;
+    
 }
 
 bool SyntacticAnalyzer::isTerm(){
-    productionOutputs.push("<Term> -> <Factor> <Term'>");
-    if(isFactor()){
-        incrementParser();
-        if(isTermPrime())
+    if (isFactor()) {
+        if (isTermPrime()) {                                          // First(T)
             return true;
+        }
     }
-
-    fout << "Term Rule Error\n";
+    fout << "\tTerm rule error: " << currentStatement.top().second << endl;
     return false;
 }
 
 bool SyntacticAnalyzer::isTermPrime(){
-
-    if(currentStatement.at(statementParser).second == "*" || currentStatement.at(statementParser).second == "/"){
-        productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
-        incrementParser();
-        if(isFactor()){
-            incrementParser();
+    tmp = currentStatement.top();
+    if (tmp.second == "*" || tmp.second == "/") {                              // First(T')
+        currentStatement.pop();
+        fout << tmp.second + "\t\t<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon\n";
+        tmp = currentStatement.top();
+        if (isFactor()) {
             if (isTermPrime())
                 return true;
         }
-        //epsilon case
-    }else if(currentStatement.at(statementParser).second == ")" || currentStatement.at(statementParser).second == "+" ||
-             currentStatement.at(statementParser).second == "-" || currentStatement.at(statementParser).second == ";"){
-
-        statementParser--;
-        productionOutputs.push("<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon");
-        return true;
     }
-
-    fout << "Term' Rule Error\n";
+    else {                                                                    // Follow(T')
+        if (tmp.second == "$")
+            return true;
+        if (tmp.second == ")" || tmp.second == "+" || tmp.second == "-" ) {
+            return true;
+        }
+    }
+    fout << "\tTerm Prime rule error: " << tmp.second << endl;
     return false;
+    
 }
 
 bool SyntacticAnalyzer::isFactor(){
+    tmp = currentStatement.top();
+    if (tmp.second == "(") {
+        currentStatement.pop();
 
-    if(currentStatement.at(statementParser).second == "("){
-        incrementParser();
-        if(isExpression()) {
-            incrementParser();
-            if (currentStatement.at(statementParser).second == ")") {
-
-                productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
+        fout << tmp.second + "\t\t<Expression> -> <Terminal> <Expression'>\n";
+        tmp = currentStatement.top();
+        if (isExpression()) {
+            tmp = currentStatement.top();
+            if (tmp.second == ")") {
+                currentStatement.pop();
+                fout << tmp.second + "\t\t<Factor> -> ( <Expression> ) | <id> | <num>\n";
+                tmp = currentStatement.top();
                 return true;
-
             }
         }
-    }else if(currentStatement.at(statementParser).first == "IDENTIFIER"){
-        productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
-        return true;
-
-    }else if(isNumber()){
-
-        productionOutputs.push("<Factor> -> ( <Expression> ) | <id> | <num>");
+    }
+    else if (tmp.first == "IDENTIFIER") {
+        isInMemoryTable(tmp.second);
+        currentStatement.pop();
+        fout << tmp.second + "\t\t<Factor> -> ( <Expression> ) | <id> | <num>\n";
+        tmp = currentStatement.top();
         return true;
     }
+    else if (tmp.first == "INTEGER" || tmp.first == "REAL") {
+        currentStatement.pop();
+        fout << tmp.second + "\t\t<Factor> -> ( <Expression> ) | <id> | <num>\n";
+        tmp = currentStatement.top();
 
-    fout << "Factor Rule Error\n";
+        return true;
+    }
+    fout << "\tFactor rule error: " << tmp.second << endl;
     return false;
+    
 }
 
-/**
- * Makes sure the statement parser cannot go out of bounds.
- */
-void SyntacticAnalyzer::incrementParser(){
+void SyntacticAnalyzer::isInMemoryTable(const string &str) {
 
-    statementParser++;
-    if(statementParser == currentStatement.size())
-        statementParser--;
-}
+    for(int i = 0; i < memoryTable.size(); i++){
 
-bool SyntacticAnalyzer::isNumber() {
-    return currentStatement.at(statementParser).first == "INTEGER" ||
-           currentStatement.at(statementParser).first == "REAL";
-}
+        if(memoryTable.at(i).at(2) == str)
+            return;
 
-void SyntacticAnalyzer::printLexemeLine() {
-    for (int i = 0; i < currentStatement.size(); i++) {
-        fout << currentStatement.at(i).second << " ";
     }
-    fout << "\n";
-}
 
-void SyntacticAnalyzer::printStatementRules() {
-    while (productionOutputs.size() != 0)
-    {
-        fout << productionOutputs.front() << endl;
-        productionOutputs.pop();
-    }
-    fout << "\n";
+    fout << "\t\tERROR- Identifier: " + str + " has not been declared yet\n";
+
 }
