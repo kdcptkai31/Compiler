@@ -25,8 +25,6 @@ public:
     bool isTerm();
     bool isTermPrime();
     bool isFactor();
-    void printLexemeLine();
-    void printStatementRules();
 
 
 private:
@@ -46,12 +44,8 @@ private:
     bool foutOpened;                //True if they file is opened, false if no output is wanted
 
     //Helpers
-    void incrementParser();         //Increments statementParser, ensures no out of bounds errors
-    bool isNumber();
     void addToMemoryTable(const string &s);
-    void isInMemoryTable(const string &str)
-
-
+    void isInMemoryTable(const string& str);
 };
 
 #endif
