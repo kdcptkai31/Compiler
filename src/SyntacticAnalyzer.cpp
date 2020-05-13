@@ -86,11 +86,11 @@ bool SyntacticAnalyzer::isDeclarative(){
     if (symbolTable.isType(tmp.second)) {  
         declareType = tmp.second;
         currentStatement.pop();
-        cout << tmp.second + "\t\tS -> D\n";
+        cout << tmp.second + "\t\t<Statement> -> <Declarative> | <Assign>\n";
         tmp = currentStatement.top();
         if (tmp.first == "IDENTIFIER") {
             addToMemoryTable(tmp.second);
-            cout << tmp.second + "\t\tD -> Type id\n";
+            cout << tmp.second + "\t\t<Declarative> -> <Type> <id>\n";
             currentStatement.pop();
             tmp = currentStatement.top();
             if (isDeclarativePrime())
@@ -133,12 +133,12 @@ void SyntacticAnalyzer::addToMemoryTable(const string& s) {
 
 bool SyntacticAnalyzer::isAssign(){
     tmp = currentStatement.top();
-    cout << tmp.second + " \t\tS -> A\n";
+    cout << tmp.second + " \t\t<Statement> -> <Declarative> | <Assign>\n";
     if (tmp.first == "IDENTIFIER") { // First(A)
         currentStatement.pop();
         tmp = currentStatement.top();
         if (tmp.second == "=") {
-            cout << tmp.second + "\t\tA -> id = E\n";
+            cout << tmp.second + "\t\t<Assign> -> <id> = <Expression>\n";
             currentStatement.pop();
             tmp = currentStatement.top();
             if (isExpression())                                   // check expression grammar
@@ -162,10 +162,13 @@ bool SyntacticAnalyzer::isExpression(){
 bool SyntacticAnalyzer::isExpressionPrime(){
     tmp = currentStatement.top();
     if (tmp.second == "+" || tmp.second == "-") {
-        cout << tmp.second + "\t\tE' -> +TE' | -TE'\n";
+        cout << tmp.second + "\t\t<Expression'> -> + <Terminal> <Expression'> | -<Terminal> < Expression'> | epsilon\n";
         currentStatement.pop();
         tmp = currentStatement.top();
         if (isTerm()) {                                           // First(E')
+            currentStatement.pop();
+            cout << tmp.second << "\n";
+            tmp = currentStatement.top();
             if (isExpressionPrime()) {
                 return true;
             }
@@ -197,7 +200,7 @@ bool SyntacticAnalyzer::isTermPrime(){
     tmp = currentStatement.top();
     if (tmp.second == "*" || tmp.second == "/") {                              // First(T')
         currentStatement.pop();
-        cout << tmp.second + "\t\tT' -> *FT' | /FT'\n";
+        cout << tmp.second + "\t\t<Term'> -> * <Factor> <Term'> | / <Factor> <Term'> | epsilon\n";
         tmp = currentStatement.top();
         if (isFactor()) {
             if (isTermPrime())
@@ -226,7 +229,7 @@ bool SyntacticAnalyzer::isFactor(){
             tmp = currentStatement.top();
             if (tmp.second == ")") {
                 currentStatement.pop();
-                cout << tmp.second + "\t\tF -> (E)\n";
+                cout << tmp.second + "\t\t<Factor> -> ( <Expression> ) | <id> | <num>\n";
                 tmp = currentStatement.top();
                 return true;
             }
@@ -234,13 +237,13 @@ bool SyntacticAnalyzer::isFactor(){
     }
     else if (tmp.first == "IDENTIFIER") {
         currentStatement.pop();
-        cout << tmp.second + "\t\tF -> id\n";
+        cout << tmp.second + "\t\t<Factor> -> ( <Expression> ) | <id> | <num>\n";
         tmp = currentStatement.top();
         return true;
     }
     else if (tmp.first == "INTEGER" || tmp.first == "REAL") {
         currentStatement.pop();
-        cout << tmp.second + "\t\tF -> num\n";
+        cout << tmp.second + "\t\t<Factor> -> ( <Expression> ) | <id> | <num>\n";
         tmp = currentStatement.top();
 
         return true;
